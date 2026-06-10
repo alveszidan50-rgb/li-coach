@@ -1,0 +1,2902 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>LI COACH GLOBAL</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* System font fallbacks if Google Fonts fails to load */
+:root {
+  --ff-display: 'Playfair Display', Georgia, 'Times New Roman', serif !important;
+  --ff-body:    'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif !important;
+  --ff-mono:    'Space Mono', 'Courier New', Consolas, monospace !important;
+}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+<style>
+
+/* ============================================================
+   1. RESET & CSS TOKENS
+============================================================ */
+*, *::before, *::after {
+  margin: 0; padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+:root {
+  /* Core palette */
+  --void:    #03030A;
+  color-scheme: dark;
+  --deep:    #07070F;
+  --surface: #0C0C1A;
+  --card:    #111120;
+  --card2:   #16162A;
+
+  /* Borders */
+  --border:  rgba(255,255,255,.055);
+  --border2: rgba(255,255,255,.10);
+
+  /* LinkedIn blue as accent */
+  --li:      #0A66C2;
+  --li2:     #0077B5;
+  --li3:     #378FE9;
+  --li-glow: rgba(10,102,194,.18);
+  --li-dim:  rgba(10,102,194,.07);
+
+  /* Status */
+  --green:  #22C55E;
+  --red:    #EF4444;
+  --amber:  #F59E0B;
+
+  /* Text */
+  --tx:  #EDEAE0;
+  --tx2: rgba(237,234,224,.52);
+  --tx3: rgba(237,234,224,.24);
+
+  /* Typography */
+  --ff-display: 'Playfair Display', serif;
+  --ff-body:    'DM Sans', sans-serif;
+  --ff-mono:    'Space Mono', monospace;
+
+  /* Spacing */
+  --gap: 16px;
+}
+
+html { scroll-behavior: smooth; overflow-x: hidden; }
+
+body {
+  background: #03030A !important;
+  color: #EDEAE0 !important;
+  font-family: var(--ff-body);
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Grain overlay */
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.78' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 1;
+  opacity: .55;
+}
+
+/* ============================================================
+   2. AMBIENT BACKGROUND ORBS
+============================================================ */
+.ambient {
+  position: fixed; inset: 0;
+  pointer-events: none; z-index: 0; overflow: hidden;
+}
+.orb {
+  position: absolute; border-radius: 50%;
+  filter: blur(90px); opacity: .10;
+}
+.orb-1 { width: 420px; height: 420px; background: #0A66C2; top: -120px; right: -120px; animation: drift-a 9s ease-in-out infinite alternate; }
+.orb-2 { width: 320px; height: 320px; background: #123560; bottom: -60px; left: -60px;  animation: drift-b 11s ease-in-out infinite alternate; }
+.orb-3 { width: 220px; height: 220px; background: #0A66C2; top: 45%; left: 48%;        animation: pulse-orb 7s ease-in-out infinite; }
+
+@keyframes drift-a  { from { transform: translate(0,0) scale(1) }   to { transform: translate(28px,18px) scale(1.08) } }
+@keyframes drift-b  { from { transform: translate(0,0) scale(1) }   to { transform: translate(-22px,14px) scale(1.1) } }
+@keyframes pulse-orb{ 0%,100%{ opacity:.04; transform:translate(-50%,-50%) scale(1)    }
+                       50%    { opacity:.11; transform:translate(-50%,-50%) scale(1.18) } }
+
+/* ============================================================
+   3. SCREEN SYSTEM
+============================================================ */
+.screen {
+  display: none;
+  position: relative; z-index: 2;
+  min-height: 100vh;
+}
+.screen.active { display: flex; flex-direction: column; }
+
+/* ============================================================
+   4. SPLASH SCREEN
+============================================================ */
+#splash {
+  align-items: center; justify-content: center;
+  background: radial-gradient(ellipse 110% 70% at 50% 0%, rgba(10,102,194,.08) 0%, transparent 62%);
+}
+
+.splash-inner {
+  text-align: center;
+  padding: 48px 28px 60px;
+  animation: fadeUp .9s cubic-bezier(.16,1,.3,1) both;
+}
+
+/* Badge */
+.splash-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  border: 1px solid rgba(10,102,194,.32);
+  padding: 6px 18px;
+  font-size: 10px; letter-spacing: 4px; text-transform: uppercase;
+  color: var(--li); font-family: var(--ff-mono);
+  margin-bottom: 44px;
+  animation: fadeUp .9s .1s both;
+}
+.badge-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--li); animation: blink 2s infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.18} }
+
+/* Title */
+.splash-title {
+  font-family: var(--ff-display);
+  font-size: clamp(60px, 19vw, 100px);
+  font-weight: 900; line-height: .88;
+  letter-spacing: -3px;
+  color: #FFFFFF;
+  text-shadow: 0 0 60px rgba(55,143,233,.6);
+  animation: fadeUp .9s .2s both;
+}
+.splash-sub {
+  font-family: var(--ff-mono); font-size: 10px;
+  letter-spacing: 5px; color: rgba(237,234,224,.5) !important; text-transform: uppercase;
+  margin-top: 14px;
+  animation: fadeUp .9s .3s both;
+}
+.splash-desc {
+  font-size: 15px; color: rgba(237,234,224,.75) !important; line-height: 1.85;
+  max-width: 295px; margin: 30px auto 0;
+  animation: fadeUp .9s .35s both;
+}
+.splash-desc em { color: var(--li2); font-style: normal; }
+
+/* Language grid */
+.lang-grid {
+  display: grid; grid-template-columns: repeat(3,1fr);
+  gap: 8px; max-width: 310px;
+  margin: 36px auto 0;
+  animation: fadeUp .9s .4s both;
+}
+.lang-btn {
+  background: #111120; border: 1px solid rgba(255,255,255,.15);
+  padding: 13px 6px; cursor: pointer; text-align: center;
+  transition: all .22s;
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
+}
+.lang-btn:hover   { border-color: rgba(10,102,194,.5); background: rgba(10,102,194,.12); }
+.lang-btn.sel     { border-color: #0A66C2; background: rgba(10,102,194,.25); }
+.lang-flag        { font-size: 22px; line-height: 1; }
+.lang-name        { font-family: var(--ff-mono); font-size: 9px; letter-spacing: 2px; color: rgba(255,255,255,.7); text-transform: uppercase; }
+.lang-btn.sel .lang-name { color: #378FE9; font-weight: 700; }
+
+/* CTA Button */
+.splash-cta { margin-top: 36px; animation: fadeUp .9s .5s both; }
+
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: linear-gradient(135deg, var(--li) 0%, var(--li3) 100%);
+  color: var(--void); padding: 17px 44px;
+  font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase;
+  font-family: var(--ff-mono); border: none; cursor: pointer;
+  transition: all .3s; position: relative; overflow: hidden;
+}
+.btn-primary::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg, var(--li2), var(--li3));
+  opacity: 0; transition: opacity .3s;
+}
+.btn-primary:hover::before { opacity: 1; }
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 18px 40px rgba(10,102,194,.35); }
+.btn-primary span  { position: relative; z-index: 1; }
+
+/* Features row */
+.splash-feats {
+  display: flex; gap: 22px; justify-content: center;
+  flex-wrap: wrap; margin-top: 30px;
+  animation: fadeUp .9s .6s both;
+}
+.feat-item {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11px; color: var(--tx3); letter-spacing: 1px;
+}
+.feat-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--li); }
+
+/* ============================================================
+   5. ONBOARDING SCREEN
+============================================================ */
+#onboarding { background: var(--deep); }
+
+/* Sticky top bar */
+.ob-top {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(7,7,15,.92); backdrop-filter: blur(22px);
+  padding: 15px 22px; border-bottom: 1px solid var(--border);
+}
+.ob-top-row {
+  display: flex; justify-content: space-between; align-items: center;
+}
+.ob-logo  { font-family: var(--ff-mono); font-size: 13px; letter-spacing: 4px; color: var(--li); }
+.ob-count { font-family: var(--ff-mono); font-size: 10px; color: var(--tx3); }
+
+.ob-prog-track { height: 2px; background: var(--border2); margin-top: 12px; }
+.ob-prog-fill  { height: 100%; background: linear-gradient(90deg, var(--li), var(--li3)); transition: width .55s cubic-bezier(.16,1,.3,1); }
+
+/* Body */
+.ob-body { flex: 1; padding: 40px 22px 130px; overflow-y: auto; }
+
+.ob-step         { display: none; }
+.ob-step.active  { display: flex; flex-direction: column; animation: stepIn .45s cubic-bezier(.16,1,.3,1) both; }
+@keyframes stepIn { from { opacity: 0; transform: translateX(22px); } to { opacity: 1; transform: translateX(0); } }
+
+.ob-step-label { font-family: var(--ff-mono); font-size: 9px; letter-spacing: 4px; color: var(--li); text-transform: uppercase; margin-bottom: 14px; }
+.ob-step-q     { font-family: var(--ff-display); font-size: clamp(26px,7vw,40px); font-weight: 700; line-height: 1.1; margin-bottom: 8px; }
+.ob-step-hint  { font-size: 13px; color: var(--tx2); margin-bottom: 28px; line-height: 1.65; }
+
+/* Options list */
+.ob-opts { display: flex; flex-direction: column; gap: 8px; }
+
+.ob-opt {
+  background: var(--card); border: 1px solid var(--border);
+  padding: 17px 18px; cursor: pointer;
+  transition: all .22s;
+  display: flex; align-items: center; gap: 13px;
+  font-size: 14px; position: relative; overflow: hidden;
+}
+.ob-opt::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg, var(--li-dim), transparent);
+  opacity: 0; transition: opacity .22s;
+}
+.ob-opt:hover           { border-color: rgba(10,102,194,.32); }
+.ob-opt.sel             { border-color: var(--li); background: var(--li-glow); }
+.ob-opt.sel::before     { opacity: 1; }
+.ob-opt-icon            { font-size: 21px; flex-shrink: 0; }
+.ob-opt-text            { flex: 1; font-weight: 500; }
+.ob-opt-check {
+  width: 20px; height: 20px; border: 1.5px solid var(--border2);
+  border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .22s;
+}
+.ob-opt.sel .ob-opt-check { background: var(--li); border-color: var(--li); }
+.ob-opt.sel .ob-opt-check::after { content: '✓'; font-size: 10px; color: var(--void); font-weight: 700; }
+
+/* Country grid */
+.country-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+}
+.c-card {
+  background: var(--card); border: 1px solid var(--border);
+  padding: 13px 14px; cursor: pointer; transition: all .22s;
+  display: flex; align-items: center; gap: 10px;
+  position: relative; overflow: hidden;
+}
+.c-card::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg, var(--li-dim), transparent);
+  opacity: 0; transition: opacity .22s;
+}
+.c-card:hover           { border-color: rgba(10,102,194,.3); }
+.c-card.sel             { border-color: var(--li); background: var(--li-glow); }
+.c-card.sel::before     { opacity: 1; }
+.c-flag                 { font-size: 26px; }
+.c-info                 { flex: 1; }
+.c-name                 { font-size: 13px; font-weight: 600; }
+.c-region               { font-size: 9px; color: var(--tx3); font-family: var(--ff-mono); margin-top: 2px; }
+.c-check {
+  width: 16px; height: 16px; border: 1px solid var(--border2);
+  border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .22s;
+}
+.c-card.sel .c-check            { background: var(--li); border-color: var(--li); }
+.c-card.sel .c-check::after     { content: '✓'; font-size: 8px; color: var(--void); font-weight: 700; }
+
+/* Culture preview chip */
+.culture-chip {
+  display: none;
+  margin-top: 10px;
+  background: var(--card); border: 1px solid var(--border);
+  border-right: 2px solid var(--amber);
+  padding: 13px 15px;
+}
+.culture-chip.show      { display: block; }
+.chip-label { font-family: var(--ff-mono); font-size: 8px; letter-spacing: 3px; color: var(--amber); text-transform: uppercase; margin-bottom: 7px; }
+.chip-body  { font-size: 12px; color: var(--tx2); line-height: 1.7; }
+
+/* Text input */
+.ob-input {
+  background: var(--card); border: 1px solid var(--border);
+  padding: 17px 18px;
+  font-family: var(--ff-body); font-size: 16px;
+  color: var(--tx); width: 100%; outline: none;
+  transition: border .22s; -webkit-appearance: none;
+}
+.ob-input:focus            { border-color: var(--li); }
+.ob-input::placeholder     { color: var(--tx3); }
+
+/* CV drop zone */
+.cv-zone {
+  border: 1.5px dashed rgba(10,102,194,.24);
+  padding: 38px 20px; text-align: center; cursor: pointer;
+  transition: all .28s; background: var(--card);
+}
+.cv-zone:hover, .cv-zone.drag { border-color: var(--li); background: var(--li-dim); }
+.cv-zone input              { display: none; }
+.cv-zone-icon               { font-size: 36px; margin-bottom: 12px; }
+.cv-zone-text               { font-size: 13px; color: var(--tx2); line-height: 1.75; }
+.cv-zone-text b             { color: var(--li2); }
+
+.cv-ok {
+  display: none; align-items: center; gap: 10px;
+  background: rgba(34,197,94,.07); border: 1px solid rgba(34,197,94,.2);
+  padding: 13px 16px; margin-top: 8px;
+}
+.cv-ok.show          { display: flex; }
+.cv-ok-name          { font-size: 12px; color: var(--green); flex: 1; font-weight: 600; }
+.cv-remove           { font-size: 11px; color: var(--tx3); cursor: pointer; transition: color .2s; }
+.cv-remove:hover     { color: var(--red); }
+
+.ob-divider {
+  display: flex; align-items: center; gap: 12px;
+  margin: 20px 0; color: var(--tx3);
+  font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
+}
+.ob-divider::before, .ob-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+.ob-textarea {
+  background: var(--card); border: 1px solid var(--border);
+  padding: 15px 18px;
+  font-family: var(--ff-body); font-size: 13px;
+  color: var(--tx); width: 100%; outline: none;
+  height: 115px; resize: none; transition: border .22s;
+}
+.ob-textarea:focus     { border-color: rgba(10,102,194,.4); }
+.ob-textarea::placeholder { color: var(--tx3); }
+
+/* Nav bar */
+.ob-nav {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
+  padding: 15px 22px 30px;
+  background: rgba(7,7,15,.96); backdrop-filter: blur(22px);
+  border-top: 1px solid var(--border);
+  display: flex; gap: 10px;
+}
+.btn-back {
+  background: transparent; border: 1px solid var(--border2);
+  color: var(--tx3); padding: 14px 20px;
+  font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase;
+  cursor: pointer; font-family: var(--ff-mono); transition: all .22s;
+}
+.btn-back:hover { color: var(--tx2); }
+.btn-next {
+  flex: 1; background: linear-gradient(135deg, var(--li), var(--li3));
+  color: var(--void); border: none; padding: 14px;
+  font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase;
+  cursor: pointer; font-family: var(--ff-mono); transition: all .28s;
+}
+.btn-next:disabled          { background: var(--card); color: var(--tx3); cursor: not-allowed; }
+.btn-next:not(:disabled):hover { filter: brightness(1.1); transform: translateY(-1px); }
+
+/* ============================================================
+   6. GENERATING SCREEN
+============================================================ */
+#generating {
+  align-items: center; justify-content: center;
+  background: radial-gradient(ellipse 80% 60% at 50% 42%, rgba(10,102,194,.06) 0%, transparent 65%);
+}
+.gen-wrap    { text-align: center; padding: 44px 30px; max-width: 360px; }
+
+/* Spinner */
+.gen-spinner { width: 86px; height: 86px; margin: 0 auto 36px; position: relative; }
+.gen-ring-a  { position: absolute; inset: 0; border: 1px solid var(--border2); border-radius: 50%; border-top-color: var(--li);  animation: spin 1.2s linear infinite; }
+.gen-ring-b  { position: absolute; top: 13px; left: 13px; right: 13px; bottom: 13px; border: 1px solid rgba(10,102,194,.18); border-radius: 50%; border-bottom-color: var(--li2); animation: spin .8s linear infinite reverse; }
+.gen-emoji   { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); font-size: 22px; animation: pulse-orb 1.6s ease-in-out infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.gen-title   { font-family: var(--ff-display); font-size: 30px; font-weight: 700; margin-bottom: 8px; }
+.gen-status  { font-size: 11px; color: var(--li3); font-family: var(--ff-mono); letter-spacing: 2px; min-height: 20px; }
+
+.gen-steps   { margin-top: 34px; display: flex; flex-direction: column; gap: 0; }
+.gen-step {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 0; font-size: 12px; color: var(--tx3);
+  transition: all .45s;
+}
+.gen-step.active { color: var(--li3); }
+.gen-step.done   { color: var(--green); }
+.gen-step-dot {
+  width: 24px; height: 24px; border: 1px solid var(--border2); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; flex-shrink: 0; transition: all .45s;
+}
+.gen-step.active .gen-step-dot { border-color: var(--li3); color: var(--li3); }
+.gen-step.done   .gen-step-dot { border-color: var(--green); color: var(--green); background: rgba(34,197,94,.1); }
+
+/* ============================================================
+   7. DASHBOARD SCREEN
+============================================================ */
+#dashboard { background: var(--deep); padding-bottom: 82px; }
+
+/* Header */
+.dash-head {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(7,7,15,.93); backdrop-filter: blur(24px);
+  border-bottom: 1px solid var(--border);
+}
+.dash-head-top {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 15px 20px 0;
+}
+.dash-logo      { display: flex; align-items: center; gap: 10px; }
+.dash-logo-sq   { width: 32px; height: 32px; background: var(--li); display: flex; align-items: center; justify-content: center; }
+.dash-logo-sq svg { width: 16px; height: 16px; fill: var(--void); }
+.dash-logo-txt  { font-family: var(--ff-mono); font-size: 12px; letter-spacing: 4px; color: var(--tx); }
+.dash-head-right { display: flex; align-items: center; gap: 8px; }
+.dash-country-pill {
+  display: flex; align-items: center; gap: 5px;
+  background: var(--card); border: 1px solid var(--border);
+  padding: 4px 9px; font-family: var(--ff-mono); font-size: 8px; color: var(--tx3); letter-spacing: 1px;
+}
+.dash-date { font-family: var(--ff-mono); font-size: 8px; color: var(--tx3); letter-spacing: 1.5px; }
+
+/* Tabs */
+.dash-tabs {
+  display: flex; padding: 0 18px; margin-top: 12px;
+  border-top: 1px solid var(--border);
+  overflow-x: auto; scrollbar-width: none;
+}
+.dash-tabs::-webkit-scrollbar { display: none; }
+.dash-tab {
+  padding: 11px 13px;
+  font-size: 9px; font-weight: 600; letter-spacing: 2.5px; text-transform: uppercase;
+  color: var(--tx3); cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all .22s; white-space: nowrap;
+  background: none; border-left: none; border-right: none; border-top: none;
+  font-family: var(--ff-mono); flex-shrink: 0;
+}
+.dash-tab.active { color: var(--li3); border-bottom-color: var(--li3); }
+
+/* Tab panes */
+.tab-pane          { display: none; padding: 20px; }
+.tab-pane.active   { display: block; animation: fadeUp .38s cubic-bezier(.16,1,.3,1) both; }
+@keyframes fadeUp  { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+
+/* AI badge */
+.ai-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--li-dim); border: 1px solid rgba(10,102,194,.2);
+  padding: 5px 12px; font-size: 8px; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--li3); font-family: var(--ff-mono); margin-bottom: 16px;
+}
+
+/* --- Level card --- */
+.lvl-card {
+  background: var(--card); border: 1px solid var(--border);
+  padding: 20px; margin-bottom: 10px; position: relative; overflow: hidden;
+}
+.lvl-card::before {
+  content: ''; position: absolute; top: -10px; right: -10px;
+  width: 90px; height: 90px;
+  background: radial-gradient(circle, var(--li-glow), transparent 70%);
+}
+.lvl-top          { display: flex; justify-content: space-between; align-items: flex-start; }
+.lvl-label        { font-family: var(--ff-mono); font-size: 8px; letter-spacing: 3px; color: var(--tx3); text-transform: uppercase; }
+.lvl-name         { font-size: 16px; font-weight: 600; margin-top: 5px; }
+.lvl-num          { font-family: var(--ff-display); font-size: 50px; font-weight: 900; color: var(--li3); line-height: 1; position: relative; z-index: 1; }
+.lvl-track        { height: 3px; background: var(--border2); margin-top: 15px; }
+.lvl-bar          { height: 100%; background: linear-gradient(90deg, var(--li), var(--li3)); transition: width .75s cubic-bezier(.16,1,.3,1); }
+.lvl-xp           { font-family: var(--ff-mono); font-size: 9px; color: var(--tx3); letter-spacing: 1px; margin-top: 8px; }
+
+/* --- Streak card --- */
+.streak-card      { background: var(--card); border: 1px solid var(--border); padding: 16px; margin-bottom: 10px; }
+.streak-label     { font-family: var(--ff-mono); font-size: 8px; letter-spacing: 3px; color: var(--tx3); text-transform: uppercase; margin-bottom: 12px; }
+.streak-grid      { display: grid; grid-template-columns: repeat(7,1fr); gap: 4px; }
+.s-cell           { background: var(--deep); padding: 7px 3px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.s-cell.today     { border: 1px solid var(--li); }
+.s-cell.done .s-dot { background: var(--li3); }
+.s-day            { font-family: var(--ff-mono); font-size: 7px; color: var(--tx3); }
+.s-dot            { width: 6px; height: 6px; border-radius: 50%; background: var(--border2); }
+
+/* --- Task cards --- */
+.tasks-row        { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.tasks-head       { font-family: var(--ff-mono); font-size: 9px; letter-spacing: 3px; color: var(--tx2); text-transform: uppercase; }
+.tasks-ctr        { font-family: var(--ff-mono); font-size: 10px; color: var(--li3); }
+
+.task-card        { background: var(--card); border: 1px solid var(--border); margin-bottom: 8px; overflow: hidden; transition: border .22s; }
+.task-card.done   { opacity: .58; }
+.task-head        { padding: 16px 15px 13px; cursor: pointer; display: flex; align-items: flex-start; gap: 11px; }
+.task-meta        { flex: 1; }
+.task-type        { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; }
+.task-type-icon   { font-size: 13px; }
+.task-type-lbl    { font-family: var(--ff-mono); font-size: 8px; letter-spacing: 2px; color: var(--li3); text-transform: uppercase; }
+.task-type-tag    { font-family: var(--ff-mono); font-size: 8px; color: var(--tx3); }
+.task-title       { font-size: 14px; font-weight: 600; margin-bottom: 4px; line-height: 1.3; }
+.task-desc        { font-size: 12px; color: var(--tx2); line-height: 1.5; }
+
+.task-check {
+  width: 24px; height: 24px; border: 1.5px solid var(--border2); border-radius: 50%;
+  flex-shrink: 0; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .22s; margin-top: 2px;
+}
+.task-check svg          { fill: transparent; }
+.task-check.checked      { background: var(--li); border-color: var(--li); }
+.task-check.checked svg  { fill: var(--void); }
+
+.task-body           { display: none; padding: 0 15px 15px; border-top: 1px solid var(--border); }
+.task-card.open .task-body { display: block; }
+.task-body-lbl       { font-family: var(--ff-mono); font-size: 8px; letter-spacing: 3px; color: var(--tx3); text-transform: uppercase; margin: 12px 0 8px; }
+.task-tpl {
+  font-size: 12px; color: var(--tx2); line-height: 1.75;
+  white-space: pre-wrap; background: var(--deep); padding: 12px;
+  border-right: 2px solid var(--li3);
+  max-height: 115px; overflow: hidden; position: relative;
+}
+.task-tpl::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+  height: 30px; background: linear-gradient(transparent, var(--deep));
+}
+.task-copy-btn {
+  margin-top: 10px; width: 100%; background: transparent;
+  border: 1px solid var(--border2); color: var(--tx2);
+  padding: 10px; font-size: 9px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase;
+  cursor: pointer; font-family: var(--ff-mono); transition: all .22s;
+}
+.task-copy-btn:hover { border-color: var(--li3); color: var(--li3); }
+
+.complete-btn {
+  width: 100%; margin-top: 14px;
+  background: linear-gradient(135deg, var(--li), var(--li3));
+  color: var(--void); border: none; padding: 16px;
+  font-size: 10px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase;
+  cursor: pointer; font-family: var(--ff-mono); transition: all .28s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.complete-btn:hover:not(:disabled) { filter: brightness(1.1); transform: translateY(-1px); box-shadow: 0 10px 28px rgba(10,102,194,.28); }
+.complete-btn:disabled             { background: var(--card); color: var(--tx3); cursor: default; }
+
+/* --- Plan tab --- */
+.plan-week         { margin-bottom: 26px; }
+.plan-week-hd      { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.plan-wnum         { font-family: var(--ff-display); font-size: 38px; font-weight: 900; color: rgba(10,102,194,.18); line-height: 1; }
+.plan-winfo        { flex: 1; }
+.plan-wlabel       { font-family: var(--ff-mono); font-size: 8px; letter-spacing: 3px; color: var(--tx3); text-transform: uppercase; }
+.plan-wfocus       { font-size: 14px; font-weight: 600; color: var(--li2); }
+.plan-day          { background: var(--card); border: 1px solid var(--border); padding: 13px 15px; margin-bottom: 5px; display: flex; gap: 11px; align-items: flex-start; }
+.plan-day.today    { border-color: var(--li3); background: var(--li-dim); }
+.plan-dnum         { font-family: var(--ff-display); font-size: 22px; font-weight: 700; color: rgba(10,102,194,.28); line-height: 1; flex-shrink: 0; width: 26px; }
+.plan-day.today .plan-dnum { color: var(--li3); }
+.plan-dcontent     { flex: 1; }
+.plan-dfocus       { font-family: var(--ff-mono); font-size: 8px; letter-spacing: 2px; color: var(--li3); text-transform: uppercase; margin-bottom: 5px; }
+.plan-dtasks       { font-size: 12px; color: var(--tx2); line-height: 1.85; }
+
+/* --- Culture tab --- */
+.culture-card {
+  background: var(--card); border: 1px solid var(--border); border-top: 2px solid var(--amber);
+  padding: 20px; margin-bottom: 10px; position: relative; overflow: hidden;
+}
+.culture-card::before {
+  content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  background: radial-gradient(ellipse 60% 50% at 85% 0%, rgba(245,158,11,.05), transparent);
+}
+.culture-hd        { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.culture-flag      { font-size: 38px; line-height: 1; }
+.culture-name      { font-family: var(--ff-display); font-size: 22px; font-weight: 700; }
+.culture-sub       { font-family: var(--ff-mono); font-size: 8px; letter-spacing: 2px; color: var(--amber); text-transform: uppercase; margin-top: 3px; }
+.culture-grid      { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.c-item            { background: var(--deep); padding: 12px 13px; }
+.c-item-lbl        { font-family: var(--ff-mono); font-size: 7px; letter-spacing: 2px; color: var(--tx3); text-transform: uppercase; margin-bottom: 5px; }
+.c-item-val        { font-size: 12px; color: var(--tx2); line-height: 1.55; }
+
+.analysis-card     { background: var(--card); border: 1px solid var(--border); border-top: 2px solid var(--amber); padding: 17px; margin-bottom: 8px; }
+.analysis-hd       { display: flex; align-items: center; gap: 8px; margin-bottom: 13px; }
+.analysis-icon     { font-size: 22px; }
+.analysis-title    { font-family: var(--ff-display); font-size: 17px; font-weight: 700; }
+.analysis-sub      { font-family: var(--ff-mono); font-size: 8px; letter-spacing: 2px; color: var(--amber); text-transform: uppercase; margin-top: 2px; }
+.analysis-list     { display: flex; flex-direction: column; gap: 8px; }
+.analysis-item     { display: flex; gap: 8px; align-items: flex-start; font-size: 12px; color: var(--tx2); line-height: 1.65; }
+.analysis-bullet   { color: var(--amber); flex-shrink: 0; margin-top: 2px; }
+
+.keywords-row      { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.kw                { background: var(--deep); border: 1px solid rgba(10,102,194,.22); color: var(--li3); padding: 4px 10px; font-family: var(--ff-mono); font-size: 8px; letter-spacing: 1px; }
+
+/* --- Insights tab --- */
+.insight-card      { background: var(--card); border: 1px solid var(--border); padding: 17px; margin-bottom: 8px; transition: all .22s; }
+.insight-card:hover { border-color: rgba(10,102,194,.2); }
+.ins-icon          { font-size: 25px; margin-bottom: 9px; }
+.ins-title         { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+.ins-body          { font-size: 12px; color: var(--tx2); line-height: 1.7; }
+.ins-tag           { display: inline-block; margin-top: 10px; font-family: var(--ff-mono); font-size: 7px; letter-spacing: 2px; text-transform: uppercase; border: 1px solid rgba(10,102,194,.2); color: var(--li3); padding: 4px 10px; }
+
+/* --- Profile tab --- */
+.profile-hero      { background: var(--card); border: 1px solid var(--border); padding: 24px 20px; margin-bottom: 8px; position: relative; overflow: hidden; }
+.profile-hero::before {
+  content: ''; position: absolute; top: -45px; left: -45px;
+  width: 160px; height: 160px; border-radius: 50%;
+  background: radial-gradient(circle, var(--li-glow), transparent 70%);
+}
+.p-name            { font-family: var(--ff-display); font-size: 30px; font-weight: 700; margin-bottom: 4px; position: relative; z-index: 1; }
+.p-headline        { font-family: var(--ff-mono); font-size: 9px; letter-spacing: 2px; color: var(--li3); text-transform: uppercase; margin-bottom: 20px; position: relative; z-index: 1; }
+.p-stats           { display: grid; grid-template-columns: repeat(3,1fr); gap: 3px; }
+.p-stat            { background: var(--deep); padding: 13px 8px; text-align: center; }
+.p-stat-n          { font-family: var(--ff-display); font-size: 28px; font-weight: 700; color: var(--li3); line-height: 1; }
+.p-stat-l          { font-family: var(--ff-mono); font-size: 7px; letter-spacing: 2px; color: var(--tx3); text-transform: uppercase; margin-top: 4px; }
+.p-insight         { background: var(--card); border: 1px solid var(--border); border-right: 2px solid var(--li3); padding: 15px 17px; margin-bottom: 8px; font-size: 13px; line-height: 1.8; color: var(--tx2); }
+.btn-reset         { width: 100%; background: transparent; border: 1px solid var(--border); color: var(--tx3); padding: 13px; font-size: 9px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; font-family: var(--ff-mono); transition: all .22s; margin-top: 8px; }
+.btn-reset:hover   { border-color: var(--red); color: var(--red); }
+
+/* --- Bottom nav --- */
+.bnav {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
+  background: rgba(7,7,15,.96); backdrop-filter: blur(24px);
+  border-top: 1px solid var(--border);
+  display: flex; justify-content: space-around; padding: 10px 0 22px;
+}
+.bnav-btn {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  font-family: var(--ff-mono); font-size: 7px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--tx3); cursor: pointer; background: none; border: none; padding: 5px 14px;
+  transition: color .22s;
+}
+.bnav-btn.active   { color: var(--li3); }
+.bnav-btn svg      { width: 19px; height: 19px; fill: currentColor; }
+
+/* ============================================================
+   8. GLOBAL MODALS & TOASTS
+============================================================ */
+/* Copy modal */
+#copy-modal {
+  display: none; position: fixed; inset: 0; z-index: 9999;
+  align-items: flex-end; background: rgba(0,0,0,.82); backdrop-filter: blur(8px);
+}
+#copy-modal.open    { display: flex; }
+.copy-sheet {
+  background: var(--card); width: 100%; border-top: 2px solid var(--li3);
+  padding: 20px 20px 34px; animation: slideUp .28s cubic-bezier(.16,1,.3,1) both;
+}
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.copy-sheet-lbl     { font-family: var(--ff-mono); font-size: 8px; letter-spacing: 3px; color: var(--li3); text-transform: uppercase; margin-bottom: 12px; }
+.copy-ta            { width: 100%; height: 175px; background: var(--deep); color: var(--tx); border: 1px solid var(--border); padding: 13px; font-family: var(--ff-body); font-size: 13px; line-height: 1.8; resize: none; outline: none; }
+.copy-btn-row       { display: flex; gap: 8px; margin-top: 10px; }
+.btn-copy-txt       { flex: 1; background: var(--li); color: var(--void); border: none; padding: 13px; font-size: 9px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; font-family: var(--ff-mono); }
+.btn-close-modal    { background: transparent; border: 1px solid var(--border2); color: var(--tx3); padding: 13px 18px; font-size: 9px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; font-family: var(--ff-mono); }
+
+/* Toast */
+.toast {
+  position: fixed; top: 16px; left: 50%;
+  transform: translateX(-50%) translateY(-90px);
+  background: var(--li3); color: var(--void);
+  padding: 10px 22px; font-family: var(--ff-mono); font-size: 9px;
+  letter-spacing: 2px; text-transform: uppercase;
+  transition: transform .32s cubic-bezier(.16,1,.3,1); z-index: 9999; white-space: nowrap;
+}
+.toast.show         { transform: translateX(-50%) translateY(0); }
+.err-txt            { color: var(--red); font-family: var(--ff-mono); font-size: 10px; letter-spacing: 1px; }
+
+</style>
+</head>
+<body>
+
+<!-- ── Ambient ── -->
+<div class="ambient">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+</div>
+
+<!-- ── Toast ── -->
+<div class="toast" id="toast">✓</div>
+
+<!-- ── Copy Modal ── -->
+<div id="copy-modal">
+  <div class="copy-sheet">
+    <div class="copy-sheet-lbl" id="copy-lbl">Ready-to-post text</div>
+    <textarea class="copy-ta" id="copy-ta" readonly></textarea>
+    <div class="copy-btn-row">
+      <button class="btn-copy-txt"    onclick="copyText()">📋 Copy</button>
+      <button class="btn-close-modal" onclick="closeModal()">✕ Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCREEN 1 — SPLASH
+══════════════════════════════════════════ -->
+<div class="screen active" id="splash">
+  <div class="splash-inner">
+    <div class="splash-badge"><span class="badge-dot"></span> Global LinkedIn Coach</div>
+    <div class="splash-title">LI<br>COACH</div>
+    <div class="splash-sub">Global Growth Engine</div>
+    <p class="splash-desc">اختر لغتك ودولتك — الـ AI سيحلل ثقافة <em>LinkedIn المحلية</em> ويبني خطتك</p>
+
+    <!-- Language Selector -->
+    <div class="lang-grid">
+      <button class="lang-btn sel" onclick="setLang('ar',this)"><span class="lang-flag">🇸🇦</span><span class="lang-name">العربية</span></button>
+      <button class="lang-btn"    onclick="setLang('en',this)"><span class="lang-flag">🇺🇸</span><span class="lang-name">English</span></button>
+      <button class="lang-btn"    onclick="setLang('es',this)"><span class="lang-flag">🇪🇸</span><span class="lang-name">Español</span></button>
+      <button class="lang-btn"    onclick="setLang('fr',this)"><span class="lang-flag">🇫🇷</span><span class="lang-name">Français</span></button>
+      <button class="lang-btn"    onclick="setLang('pt',this)"><span class="lang-flag">🇧🇷</span><span class="lang-name">Português</span></button>
+      <button class="lang-btn"    onclick="setLang('ru',this)"><span class="lang-flag">🇷🇺</span><span class="lang-name">Русский</span></button>
+    </div>
+
+    <div class="splash-api-wrap" style="max-width:310px;margin:28px auto 0;animation:fadeUp .9s .48s both">
+      <div style="font-family:var(--ff-mono);font-size:8px;letter-spacing:3px;color:var(--tx3);text-transform:uppercase;margin-bottom:7px">
+        🔑 GOOGLE GEMINI API KEY
+      </div>
+      <div style="display:flex;gap:6px">
+        <input id="api-key-inp" type="password"
+          placeholder="AIza... أو AQ..."
+          style="flex:1;background:var(--card);border:1px solid var(--border);padding:11px 14px;font-family:var(--ff-mono);font-size:12px;color:var(--tx);outline:none;transition:border .22s"
+          onfocus="this.style.borderColor='var(--li)'"
+          onblur="this.style.borderColor='var(--border)'"
+          oninput="saveApiKey(this.value)"
+        >
+        <div id="api-status" style="width:36px;display:flex;align-items:center;justify-content:center;font-size:16px">🔒</div>
+      </div>
+      <div style="font-size:10px;color:var(--tx3);margin-top:6px;line-height:1.6">
+        مفتاحك محفوظ في المتصفح فقط — Google Gemini مجاني ✓
+      </div>
+    </div>
+
+    <div class="splash-cta">
+      <button class="btn-primary" onclick="startApp()">
+        <span id="splash-btn-txt">ابدأ الآن</span>
+        <span>→</span>
+      </button>
+    </div>
+    <div class="splash-feats">
+      <div class="feat-item"><span class="feat-dot"></span><span id="feat-1">ثقافة LinkedIn المحلية</span></div>
+      <div class="feat-item"><span class="feat-dot"></span><span id="feat-2">Keywords محلية</span></div>
+      <div class="feat-item"><span class="feat-dot"></span><span id="feat-3">أوقات النشر المثلى</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCREEN 2 — ONBOARDING
+══════════════════════════════════════════ -->
+<div class="screen" id="onboarding">
+  <div class="ob-top">
+    <div class="ob-top-row">
+      <div class="ob-logo">LI COACH</div>
+      <div class="ob-count" id="ob-count">01 / 06</div>
+    </div>
+    <div class="ob-prog-track"><div class="ob-prog-fill" id="ob-fill" style="width:0%"></div></div>
+  </div>
+
+  <div class="ob-body">
+
+    <!-- S1: Name -->
+    <div class="ob-step active" id="s1">
+      <div class="ob-step-label" id="s1-lbl">الخطوة الأولى</div>
+      <div class="ob-step-q"    id="s1-q">ما اسمك؟</div>
+      <div class="ob-step-hint" id="s1-h">سيتم تخصيص كل شيء باسمك</div>
+      <input class="ob-input" id="inp-name" type="text" placeholder="محمد مأمون / Mohammed Mamoon" oninput="onName()">
+    </div>
+
+    <!-- S2: Country -->
+    <div class="ob-step" id="s2">
+      <div class="ob-step-label" id="s2-lbl">الخطوة الثانية</div>
+      <div class="ob-step-q"    id="s2-q">الدولة المستهدفة؟</div>
+      <div class="ob-step-hint" id="s2-h">سيحلل الـ AI ثقافة LinkedIn في تلك الدولة</div>
+      <div class="country-grid" id="country-grid"><!-- JS --></div>
+      <div class="culture-chip" id="culture-chip">
+        <div class="chip-label" id="chip-lbl">ثقافة LinkedIn</div>
+        <div class="chip-body"  id="chip-body"></div>
+      </div>
+    </div>
+
+    <!-- S3: Field -->
+    <div class="ob-step" id="s3">
+      <div class="ob-step-label" id="s3-lbl">الخطوة الثالثة</div>
+      <div class="ob-step-q"    id="s3-q">ما مجالك المهني؟</div>
+      <div class="ob-step-hint" id="s3-h">اختر الأقرب لخبرتك</div>
+      <div class="ob-opts" id="field-opts"><!-- JS --></div>
+    </div>
+
+    <!-- S4: Goal -->
+    <div class="ob-step" id="s4">
+      <div class="ob-step-label" id="s4-lbl">الخطوة الرابعة</div>
+      <div class="ob-step-q"    id="s4-q">ما هدفك من LinkedIn؟</div>
+      <div class="ob-step-hint" id="s4-h">اختر هدفاً واحداً واضحاً</div>
+      <div class="ob-opts" id="goal-opts"><!-- JS --></div>
+    </div>
+
+    <!-- S5: Level -->
+    <div class="ob-step" id="s5">
+      <div class="ob-step-label" id="s5-lbl">الخطوة الخامسة</div>
+      <div class="ob-step-q"    id="s5-q">مستواك الحالي على LinkedIn؟</div>
+      <div class="ob-step-hint" id="s5-h">كن صادقاً — الخطة ستتكيف معك</div>
+      <div class="ob-opts" id="level-opts"><!-- JS --></div>
+    </div>
+
+    <!-- S6: CV -->
+    <div class="ob-step" id="s6">
+      <div class="ob-step-label" id="s6-lbl">الخطوة الأخيرة</div>
+      <div class="ob-step-q"    id="s6-q">أخبر الـ AI عنك</div>
+      <div class="ob-step-hint" id="s6-h">كلما أعطيته معلومات أكثر، كانت خطتك أدق</div>
+      <div class="cv-zone" id="cv-zone" onclick="document.getElementById('cv-file').click()" ondragover="cvDrag(event)" ondrop="cvDrop(event)">
+        <input type="file" id="cv-file" accept=".pdf,.doc,.docx,.txt" onchange="cvPick(this)">
+        <div class="cv-zone-icon">📄</div>
+        <div class="cv-zone-text" id="cv-zone-txt">ارفع سيرتك الذاتية<br><b>PDF أو Word أو Text</b></div>
+      </div>
+      <div class="cv-ok" id="cv-ok">
+        <span>✅</span>
+        <span class="cv-ok-name" id="cv-fname">—</span>
+        <span class="cv-remove" id="cv-remove-btn" onclick="cvClear()">إزالة</span>
+      </div>
+      <div class="ob-divider" id="ob-divider">أو اكتب يدوياً</div>
+      <textarea class="ob-textarea" id="manual-ta" placeholder="مثال: مهندس كهرباء خبرة 10 سنوات، عملت في أرامكو..."></textarea>
+    </div>
+
+  </div><!-- /ob-body -->
+
+  <div class="ob-nav">
+    <button class="btn-back" id="btn-back" style="display:none" onclick="prevStep()">←</button>
+    <button class="btn-next" id="btn-next" disabled onclick="nextStep()">التالي →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCREEN 3 — GENERATING
+══════════════════════════════════════════ -->
+<div class="screen" id="generating">
+  <div class="gen-wrap">
+    <div class="gen-spinner">
+      <div class="gen-ring-a"></div>
+      <div class="gen-ring-b"></div>
+      <div class="gen-emoji" id="gen-emoji">🌍</div>
+    </div>
+    <div class="gen-title"  id="gen-title">جاري البناء</div>
+    <div class="gen-status" id="gen-status">تحليل بياناتك...</div>
+    <div class="gen-steps">
+      <div class="gen-step active" id="g1"><div class="gen-step-dot">◎</div><span id="gs1">تحليل خبراتك</span></div>
+      <div class="gen-step"        id="g2"><div class="gen-step-dot">◎</div><span id="gs2">ثقافة LinkedIn في دولتك</span></div>
+      <div class="gen-step"        id="g3"><div class="gen-step-dot">◎</div><span id="gs3">Keywords المحلية</span></div>
+      <div class="gen-step"        id="g4"><div class="gen-step-dot">◎</div><span id="gs4">الخطة اليومية</span></div>
+      <div class="gen-step"        id="g5"><div class="gen-step-dot">◎</div><span id="gs5">توليد المحتوى</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCREEN 4 — DASHBOARD
+══════════════════════════════════════════ -->
+<div class="screen" id="dashboard">
+
+  <!-- Header -->
+  <div class="dash-head">
+    <div class="dash-head-top">
+      <div class="dash-logo">
+        <div class="dash-logo-sq">
+          <svg viewBox="0 0 24 24"><path d="M19 3a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h14m-.5 15.5v-5.3a3.26 3.26 0 00-3.26-3.26c-.85 0-1.84.52-2.32 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 011.4 1.4v4.93h2.79M6.88 8.56a1.68 1.68 0 001.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 00-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"/></svg>
+        </div>
+        <div class="dash-logo-txt">LI COACH</div>
+      </div>
+      <div class="dash-head-right">
+        <div class="dash-country-pill">
+          <span id="dash-flag">🌍</span>
+          <span id="dash-cname">—</span>
+        </div>
+        <div class="dash-date" id="dash-date"></div>
+      </div>
+    </div>
+    <div class="dash-tabs">
+      <button class="dash-tab active" id="tab-btn-today"   onclick="switchTab('today',this)"></button>
+      <button class="dash-tab"        id="tab-btn-culture" onclick="switchTab('culture',this)"></button>
+      <button class="dash-tab"        id="tab-btn-plan"    onclick="switchTab('plan',this)"></button>
+      <button class="dash-tab"        id="tab-btn-tips"    onclick="switchTab('tips',this)"></button>
+      <button class="dash-tab"        id="tab-btn-profile" onclick="switchTab('profile',this)"></button>
+    </div>
+  </div>
+
+  <!-- TODAY -->
+  <div class="tab-pane active" id="tab-today">
+    <div class="ai-badge" id="ai-badge-today">✦ خطة مولّدة بالذكاء الاصطناعي</div>
+    <div class="lvl-card">
+      <div class="lvl-top">
+        <div><div class="lvl-label" id="lvl-label">مستواك الحالي</div><div class="lvl-name" id="lvl-name">مبتدئ 🌱</div></div>
+        <div class="lvl-num" id="lvl-num">1</div>
+      </div>
+      <div class="lvl-track"><div class="lvl-bar" id="lvl-bar" style="width:0%"></div></div>
+      <div class="lvl-xp" id="lvl-xp">0 XP</div>
+    </div>
+    <div class="streak-card">
+      <div class="streak-label" id="streak-label">النشاط الأسبوعي</div>
+      <div class="streak-grid"  id="streak-grid"></div>
+    </div>
+    <div class="tasks-row">
+      <div class="tasks-head" id="tasks-head">مهام اليوم</div>
+      <div class="tasks-ctr"  id="tasks-ctr">0/4</div>
+    </div>
+    <div id="tasks-wrap"></div>
+    <button class="complete-btn" id="complete-btn" onclick="completeDay()">✓ أنهيت مهام اليوم</button>
+  </div>
+
+  <!-- CULTURE -->
+  <div class="tab-pane" id="tab-culture">
+    <div class="ai-badge" id="ai-badge-culture">✦ تحليل LinkedIn المحلي</div>
+    <div class="culture-card">
+      <div class="culture-hd">
+        <div class="culture-flag" id="c-flag">🌍</div>
+        <div>
+          <div class="culture-name" id="c-name">—</div>
+          <div class="culture-sub"  id="c-sub">LinkedIn Culture Analysis</div>
+        </div>
+      </div>
+      <div class="culture-grid" id="culture-grid"><!-- JS --></div>
+    </div>
+    <div id="analysis-wrap"><!-- JS --></div>
+  </div>
+
+  <!-- PLAN -->
+  <div class="tab-pane" id="tab-plan">
+    <div class="ai-badge" id="ai-badge-plan">✦ خطة 4 أسابيع مخصصة</div>
+    <div id="plan-wrap"><!-- JS --></div>
+  </div>
+
+  <!-- TIPS -->
+  <div class="tab-pane" id="tab-tips">
+    <div class="ai-badge" id="ai-badge-tips">✦ نصائح مخصصة لمجالك</div>
+    <div id="tips-wrap"><!-- JS --></div>
+  </div>
+
+  <!-- PROFILE -->
+  <div class="tab-pane" id="tab-profile">
+    <div class="profile-hero">
+      <div class="p-name"     id="p-name">—</div>
+      <div class="p-headline" id="p-headline">—</div>
+      <div class="p-stats">
+        <div class="p-stat"><div class="p-stat-n" id="p-days">0</div><div class="p-stat-l" id="p-days-lbl">يوم</div></div>
+        <div class="p-stat"><div class="p-stat-n" id="p-tasks">0</div><div class="p-stat-l" id="p-tasks-lbl">مهمة</div></div>
+        <div class="p-stat"><div class="p-stat-n" id="p-lvl">1</div><div class="p-stat-l" id="p-lvl-lbl">المستوى</div></div>
+      </div>
+    </div>
+    <div class="p-insight" id="p-insight"></div>
+    <button class="btn-reset" id="btn-reset" onclick="resetApp()">إعادة الإعداد</button>
+  </div>
+
+  <!-- Bottom Nav -->
+  <div class="bnav">
+    <button class="bnav-btn active" id="bnav-today"   onclick="switchTab('today',null,'bnav-today')">
+      <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+      <span id="bnav-today-lbl">اليوم</span>
+    </button>
+    <button class="bnav-btn" id="bnav-culture" onclick="switchTab('culture',null,'bnav-culture')">
+      <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+      <span id="bnav-culture-lbl">دولتي</span>
+    </button>
+    <button class="bnav-btn" id="bnav-plan" onclick="switchTab('plan',null,'bnav-plan')">
+      <svg viewBox="0 0 24 24"><path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1s-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+      <span id="bnav-plan-lbl">الخطة</span>
+    </button>
+    <button class="bnav-btn" id="bnav-tips" onclick="switchTab('tips',null,'bnav-tips')">
+      <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+      <span id="bnav-tips-lbl">نصائح</span>
+    </button>
+    <button class="bnav-btn" id="bnav-profile" onclick="switchTab('profile',null,'bnav-profile')">
+      <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+      <span id="bnav-profile-lbl">بروفايلي</span>
+    </button>
+  </div>
+
+</div><!-- /dashboard -->
+
+<script>
+/* ============================================================
+   STEP 2 — i18n strings (6 languages) + COUNTRIES data
+============================================================ */
+
+// ── 1. TRANSLATIONS ──────────────────────────────────────────
+const T = {
+
+  ar: {
+    dir:'rtl', htmlLang:'ar',
+    // Splash
+    splashBtn:'ابدأ الآن',
+    feat1:'ثقافة LinkedIn المحلية', feat2:'Keywords محلية', feat3:'أوقات النشر المثلى',
+    // Onboarding steps
+    s1lbl:'الخطوة الأولى',   s1q:'ما اسمك؟',                      s1h:'سيتم تخصيص كل شيء باسمك',           s1p:'محمد مأمون / Mohammed Mamoon',
+    s2lbl:'الخطوة الثانية',  s2q:'الدولة المستهدفة؟',              s2h:'سيحلل الـ AI ثقافة LinkedIn في تلك الدولة',
+    s3lbl:'الخطوة الثالثة',  s3q:'ما مجالك المهني؟',               s3h:'اختر الأقرب لخبرتك',
+    s4lbl:'الخطوة الرابعة',  s4q:'ما هدفك من LinkedIn؟',           s4h:'اختر هدفاً واحداً واضحاً',
+    s5lbl:'الخطوة الخامسة',  s5q:'مستواك الحالي على LinkedIn؟',    s5h:'كن صادقاً — الخطة ستتكيف معك',
+    s6lbl:'الخطوة الأخيرة',  s6q:'أخبر الـ AI عنك',                s6h:'كلما أعطيته معلومات أكثر، كانت خطتك أدق',
+    // Buttons / nav
+    btnNext:'التالي →', btnBuild:'ابنِ خطتي 🚀', btnBack:'←', stepOf:'/ 06',
+    // CV zone
+    cvZoneTxt:'ارفع سيرتك الذاتية<br><b>PDF أو Word أو Text</b>',
+    cvRemove:'إزالة', cvDivider:'أو اكتب يدوياً',
+    manualPh:'مثال: مهندس كهرباء خبرة 10 سنوات، عملت في أرامكو وSTC...',
+    // Generating
+    genTitle:'جاري البناء',
+    gs1:'تحليل خبراتك', gs2:'ثقافة LinkedIn في دولتك', gs3:'Keywords المحلية', gs4:'الخطة اليومية', gs5:'توليد المحتوى',
+    // Dashboard tabs
+    tabToday:'اليوم', tabCulture:'دولتي', tabPlan:'الخطة', tabTips:'نصائح', tabProfile:'بروفايلي',
+    // Dashboard labels
+    aiBadgeToday:'✦ خطة مولّدة بالذكاء الاصطناعي',
+    aiBadgeCulture:'✦ تحليل LinkedIn المحلي',
+    aiBadgePlan:'✦ خطة 4 أسابيع مخصصة',
+    aiBadgeTips:'✦ نصائح مخصصة لمجالك',
+    lvlLabel:'مستواك الحالي',
+    lvlNames:['مبتدئ 🌱','نشط 📈','محترف ⭐','خبير 🔥','نجم 💎'],
+    xpSuffix:' XP · أكمل المهام لترفع مستواك',
+    streakLabel:'النشاط الأسبوعي',
+    streakDays:['أح','إث','ثل','أر','خم','جم','سب'],
+    tasksHead:'مهام اليوم',
+    taskCopyBtn:'📋 اعرض النص وانسخه',
+    completeBtnTxt:'✓ أنهيت مهام اليوم',
+    completedTxt:'✓ أنهيت يوم اليوم — أحسنت!',
+    toastTask:'✓ مهمة منجزة +1 XP',
+    toastDay:'🎯 يوم محفوظ +3 XP',
+    cultureSubLbl:'تحليل LinkedIn',
+    cultureCols:['أسلوب الكتابة','أفضل أوقات النشر','المحتوى المفضل','نبرة التواصل'],
+    analysisTitle:'تحليل السوق المحلي',
+    keywordsTitle:'الكلمات المفتاحية المحلية',
+    planWeekLbl:'الأسبوع',
+    todayPrefix:'⭐ اليوم · ',
+    copyModalLbl:'النص الجاهز للنشر',
+    copyBtn:'📋 نسخ', closeBtn:'✕ إغلاق',
+    pDaysLbl:'يوم', pTasksLbl:'مهمة', pLvlLbl:'المستوى',
+    resetBtn:'إعادة الإعداد من البداية',
+    resetConfirm:'هل أنت متأكد؟ سيتم مسح كل البيانات.',
+    chipLbl:'ثقافة LinkedIn المحلية',
+    months:['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'],
+    days:['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'],
+    errMsg:'حدث خطأ — سيتم تحميل خطة احتياطية...',
+    fields:[
+      {v:'sales',    i:'💼', t:'مبيعات وتسويق'},
+      {v:'marketing',i:'📣', t:'تسويق رقمي'},
+      {v:'engineer', i:'⚙️', t:'هندسة وتقنية'},
+      {v:'design',   i:'🎨', t:'تصميم وإبداع'},
+      {v:'finance',  i:'📊', t:'مالية وأعمال'},
+      {v:'hr',       i:'👥', t:'موارد بشرية'},
+      {v:'other',    i:'⭐', t:'مجال آخر'},
+    ],
+    goals:[
+      {v:'job',     i:'🎯', t:'الحصول على وظيفة'},
+      {v:'clients', i:'🤝', t:'جذب عملاء جدد'},
+      {v:'brand',   i:'⭐', t:'بناء Personal Brand'},
+      {v:'network', i:'🌐', t:'توسيع شبكة العلاقات'},
+    ],
+    levels:[
+      {v:'new',    i:'🌱', t:'جديد — أقل من 100 كونكشن'},
+      {v:'mid',    i:'📈', t:'متوسط — من 100 إلى 500'},
+      {v:'active', i:'🔥', t:'نشط — أكثر من 500'},
+    ],
+  },
+
+  en: {
+    dir:'ltr', htmlLang:'en',
+    splashBtn:'Get Started',
+    feat1:'Local LinkedIn Culture', feat2:'Local Keywords', feat3:'Best Posting Times',
+    s1lbl:'Step One',   s1q:"What's your name?",              s1h:'Everything will be personalised for you',    s1p:'محمد مأمون / Mohammed Mamoon',
+    s2lbl:'Step Two',   s2q:'Target Country?',                s2h:'AI will analyse LinkedIn culture in that country',
+    s3lbl:'Step Three', s3q:'Your professional field?',       s3h:'Choose the closest to your experience',
+    s4lbl:'Step Four',  s4q:'Your LinkedIn goal?',            s4h:'Choose one clear goal',
+    s5lbl:'Step Five',  s5q:'Your current LinkedIn level?',   s5h:'Be honest — the plan will adapt',
+    s6lbl:'Last Step',  s6q:'Tell the AI about yourself',     s6h:'More info = more accurate plan',
+    btnNext:'Next →', btnBuild:'Build My Plan 🚀', btnBack:'←', stepOf:'/ 06',
+    cvZoneTxt:'Upload your CV<br><b>PDF, Word or Text</b>',
+    cvRemove:'Remove', cvDivider:'or type manually',
+    manualPh:'Example: Electrical engineer, 10 years at Aramco, energy systems specialist...',
+    genTitle:'Building Your Plan',
+    gs1:'Analysing your experience', gs2:'LinkedIn culture in your country', gs3:'Local keywords', gs4:'Daily plan', gs5:'Generating content',
+    tabToday:'Today', tabCulture:'Country', tabPlan:'Plan', tabTips:'Tips', tabProfile:'Profile',
+    aiBadgeToday:'✦ AI-Generated Plan',
+    aiBadgeCulture:'✦ Local LinkedIn Analysis',
+    aiBadgePlan:'✦ Custom 4-Week Plan',
+    aiBadgeTips:'✦ Field-Specific Tips',
+    lvlLabel:'Current Level',
+    lvlNames:['Beginner 🌱','Active 📈','Professional ⭐','Expert 🔥','Star 💎'],
+    xpSuffix:' XP · Complete tasks to level up',
+    streakLabel:'Weekly Activity',
+    streakDays:['Su','Mo','Tu','We','Th','Fr','Sa'],
+    tasksHead:"Today's Tasks",
+    taskCopyBtn:'📋 View & Copy Text',
+    completeBtnTxt:"✓ Completed Today's Tasks",
+    completedTxt:'✓ Great work today!',
+    toastTask:'✓ Task done +1 XP',
+    toastDay:'🎯 Day saved +3 XP',
+    cultureSubLbl:'LinkedIn Analysis',
+    cultureCols:['Writing Style','Best Posting Times','Preferred Content','Tone'],
+    analysisTitle:'Local Market Analysis',
+    keywordsTitle:'Local Keywords',
+    planWeekLbl:'Week',
+    todayPrefix:'⭐ Today · ',
+    copyModalLbl:'Ready-to-Post Text',
+    copyBtn:'📋 Copy', closeBtn:'✕ Close',
+    pDaysLbl:'Days', pTasksLbl:'Tasks', pLvlLbl:'Level',
+    resetBtn:'Reset App',
+    resetConfirm:'Are you sure? All data will be erased.',
+    chipLbl:'LinkedIn Culture',
+    months:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+    days:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
+    errMsg:'Connection error — loading fallback plan...',
+    fields:[
+      {v:'sales',    i:'💼', t:'Sales & Marketing'},
+      {v:'marketing',i:'📣', t:'Digital Marketing'},
+      {v:'engineer', i:'⚙️', t:'Engineering & Tech'},
+      {v:'design',   i:'🎨', t:'Design & Creative'},
+      {v:'finance',  i:'📊', t:'Finance & Business'},
+      {v:'hr',       i:'👥', t:'Human Resources'},
+      {v:'other',    i:'⭐', t:'Other Field'},
+    ],
+    goals:[
+      {v:'job',     i:'🎯', t:'Get a job'},
+      {v:'clients', i:'🤝', t:'Attract new clients'},
+      {v:'brand',   i:'⭐', t:'Build Personal Brand'},
+      {v:'network', i:'🌐', t:'Expand network'},
+    ],
+    levels:[
+      {v:'new',    i:'🌱', t:'New — under 100 connections'},
+      {v:'mid',    i:'📈', t:'Mid — 100 to 500'},
+      {v:'active', i:'🔥', t:'Active — 500+'},
+    ],
+  },
+
+  es: {
+    dir:'ltr', htmlLang:'es',
+    splashBtn:'Comenzar',
+    feat1:'Cultura LinkedIn local', feat2:'Keywords locales', feat3:'Mejores horarios de publicación',
+    s1lbl:'Paso Uno',    s1q:'¿Cuál es tu nombre?',               s1h:'Todo será personalizado para ti',          s1p:'محمد مأمون / Mohammed Mamoon',
+    s2lbl:'Paso Dos',    s2q:'¿País objetivo?',                   s2h:'La IA analizará la cultura LinkedIn en ese país',
+    s3lbl:'Paso Tres',   s3q:'¿Tu campo profesional?',            s3h:'Elige el más cercano a tu experiencia',
+    s4lbl:'Paso Cuatro', s4q:'¿Tu objetivo en LinkedIn?',         s4h:'Elige un objetivo claro',
+    s5lbl:'Paso Cinco',  s5q:'¿Tu nivel actual en LinkedIn?',     s5h:'Sé honesto — el plan se adaptará',
+    s6lbl:'Último Paso', s6q:'Cuéntale a la IA sobre ti',         s6h:'Más info = plan más preciso',
+    btnNext:'Siguiente →', btnBuild:'Crear Mi Plan 🚀', btnBack:'←', stepOf:'/ 06',
+    cvZoneTxt:'Sube tu currículum<br><b>PDF, Word o Texto</b>',
+    cvRemove:'Eliminar', cvDivider:'o escribe manualmente',
+    manualPh:'Ejemplo: Ingeniero eléctrico, 10 años de experiencia, especialista en energía...',
+    genTitle:'Construyendo tu plan',
+    gs1:'Analizando tu experiencia', gs2:'Cultura LinkedIn en tu país', gs3:'Keywords locales', gs4:'Plan diario', gs5:'Generando contenido',
+    tabToday:'Hoy', tabCulture:'País', tabPlan:'Plan', tabTips:'Tips', tabProfile:'Perfil',
+    aiBadgeToday:'✦ Plan generado con IA',
+    aiBadgeCulture:'✦ Análisis LinkedIn local',
+    aiBadgePlan:'✦ Plan personalizado 4 semanas',
+    aiBadgeTips:'✦ Tips para tu campo',
+    lvlLabel:'Nivel actual',
+    lvlNames:['Principiante 🌱','Activo 📈','Profesional ⭐','Experto 🔥','Estrella 💎'],
+    xpSuffix:' XP · Completa tareas para subir de nivel',
+    streakLabel:'Actividad semanal',
+    streakDays:['Do','Lu','Ma','Mi','Ju','Vi','Sá'],
+    tasksHead:'Tareas de hoy',
+    taskCopyBtn:'📋 Ver y copiar texto',
+    completeBtnTxt:'✓ Completé las tareas de hoy',
+    completedTxt:'✓ ¡Excelente trabajo hoy!',
+    toastTask:'✓ Tarea completada +1 XP',
+    toastDay:'🎯 Día guardado +3 XP',
+    cultureSubLbl:'Análisis LinkedIn',
+    cultureCols:['Estilo de escritura','Mejores horarios','Contenido preferido','Tono'],
+    analysisTitle:'Análisis del mercado local',
+    keywordsTitle:'Keywords locales',
+    planWeekLbl:'Semana',
+    todayPrefix:'⭐ Hoy · ',
+    copyModalLbl:'Texto listo para publicar',
+    copyBtn:'📋 Copiar', closeBtn:'✕ Cerrar',
+    pDaysLbl:'Días', pTasksLbl:'Tareas', pLvlLbl:'Nivel',
+    resetBtn:'Reiniciar app',
+    resetConfirm:'¿Estás seguro? Se borrarán todos los datos.',
+    chipLbl:'Cultura LinkedIn',
+    months:['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'],
+    days:['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'],
+    errMsg:'Error de conexión — cargando plan alternativo...',
+    fields:[
+      {v:'sales',    i:'💼', t:'Ventas y Marketing'},
+      {v:'marketing',i:'📣', t:'Marketing Digital'},
+      {v:'engineer', i:'⚙️', t:'Ingeniería y Tech'},
+      {v:'design',   i:'🎨', t:'Diseño y Creatividad'},
+      {v:'finance',  i:'📊', t:'Finanzas y Negocios'},
+      {v:'hr',       i:'👥', t:'Recursos Humanos'},
+      {v:'other',    i:'⭐', t:'Otro campo'},
+    ],
+    goals:[
+      {v:'job',     i:'🎯', t:'Conseguir empleo'},
+      {v:'clients', i:'🤝', t:'Atraer clientes'},
+      {v:'brand',   i:'⭐', t:'Construir Personal Brand'},
+      {v:'network', i:'🌐', t:'Ampliar mi red'},
+    ],
+    levels:[
+      {v:'new',    i:'🌱', t:'Nuevo — menos de 100'},
+      {v:'mid',    i:'📈', t:'Intermedio — 100 a 500'},
+      {v:'active', i:'🔥', t:'Activo — más de 500'},
+    ],
+  },
+
+  fr: {
+    dir:'ltr', htmlLang:'fr',
+    splashBtn:'Commencer',
+    feat1:'Culture LinkedIn locale', feat2:'Mots-clés locaux', feat3:'Meilleurs horaires de publication',
+    s1lbl:'Étape Un',     s1q:'Quel est votre nom ?',              s1h:'Tout sera personnalisé pour vous',          s1p:'محمد مأمون / Mohammed Mamoon',
+    s2lbl:'Étape Deux',   s2q:'Pays cible ?',                      s2h:"L'IA analysera la culture LinkedIn dans ce pays",
+    s3lbl:'Étape Trois',  s3q:'Votre domaine professionnel ?',     s3h:'Choisissez le plus proche de votre expérience',
+    s4lbl:'Étape Quatre', s4q:'Votre objectif LinkedIn ?',         s4h:'Choisissez un objectif clair',
+    s5lbl:'Étape Cinq',   s5q:'Votre niveau actuel sur LinkedIn ?',s5h:"Soyez honnête — le plan s'adaptera",
+    s6lbl:'Dernière Étape',s6q:"Parlez à l'IA de vous",           s6h:"Plus d'infos = plan plus précis",
+    btnNext:'Suivant →', btnBuild:'Créer Mon Plan 🚀', btnBack:'←', stepOf:'/ 06',
+    cvZoneTxt:'Téléchargez votre CV<br><b>PDF, Word ou Texte</b>',
+    cvRemove:'Supprimer', cvDivider:'ou écrivez manuellement',
+    manualPh:"Exemple: Ingénieur électricien, 10 ans chez Total, spécialiste en énergie...",
+    genTitle:'Construction en cours',
+    gs1:'Analyse de votre expérience', gs2:'Culture LinkedIn de votre pays', gs3:'Mots-clés locaux', gs4:'Plan quotidien', gs5:'Génération de contenu',
+    tabToday:"Aujourd'hui", tabCulture:'Pays', tabPlan:'Plan', tabTips:'Conseils', tabProfile:'Profil',
+    aiBadgeToday:'✦ Plan généré par IA',
+    aiBadgeCulture:'✦ Analyse LinkedIn locale',
+    aiBadgePlan:'✦ Plan personnalisé 4 semaines',
+    aiBadgeTips:'✦ Conseils pour votre domaine',
+    lvlLabel:'Niveau actuel',
+    lvlNames:['Débutant 🌱','Actif 📈','Professionnel ⭐','Expert 🔥','Star 💎'],
+    xpSuffix:' XP · Complétez des tâches pour progresser',
+    streakLabel:'Activité hebdomadaire',
+    streakDays:['Di','Lu','Ma','Me','Je','Ve','Sa'],
+    tasksHead:"Tâches d'aujourd'hui",
+    taskCopyBtn:'📋 Voir et copier',
+    completeBtnTxt:"✓ J'ai terminé mes tâches aujourd'hui",
+    completedTxt:"✓ Excellent travail aujourd'hui !",
+    toastTask:'✓ Tâche accomplie +1 XP',
+    toastDay:'🎯 Journée sauvegardée +3 XP',
+    cultureSubLbl:'Analyse LinkedIn',
+    cultureCols:["Style d'écriture",'Meilleurs horaires','Contenu préféré','Ton'],
+    analysisTitle:'Analyse du marché local',
+    keywordsTitle:'Mots-clés locaux',
+    planWeekLbl:'Semaine',
+    todayPrefix:"⭐ Aujourd'hui · ",
+    copyModalLbl:'Texte prêt à publier',
+    copyBtn:'📋 Copier', closeBtn:'✕ Fermer',
+    pDaysLbl:'Jours', pTasksLbl:'Tâches', pLvlLbl:'Niveau',
+    resetBtn:'Réinitialiser',
+    resetConfirm:'Êtes-vous sûr ? Toutes les données seront effacées.',
+    chipLbl:'Culture LinkedIn',
+    months:['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'],
+    days:['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'],
+    errMsg:"Erreur de connexion — chargement du plan alternatif...",
+    fields:[
+      {v:'sales',    i:'💼', t:'Ventes et Marketing'},
+      {v:'marketing',i:'📣', t:'Marketing Digital'},
+      {v:'engineer', i:'⚙️', t:'Ingénierie et Tech'},
+      {v:'design',   i:'🎨', t:'Design et Créativité'},
+      {v:'finance',  i:'📊', t:'Finance et Business'},
+      {v:'hr',       i:'👥', t:'Ressources Humaines'},
+      {v:'other',    i:'⭐', t:'Autre domaine'},
+    ],
+    goals:[
+      {v:'job',     i:'🎯', t:'Trouver un emploi'},
+      {v:'clients', i:'🤝', t:'Attirer des clients'},
+      {v:'brand',   i:'⭐', t:'Construire mon Personal Brand'},
+      {v:'network', i:'🌐', t:'Élargir mon réseau'},
+    ],
+    levels:[
+      {v:'new',    i:'🌱', t:'Nouveau — moins de 100'},
+      {v:'mid',    i:'📈', t:'Intermédiaire — 100 à 500'},
+      {v:'active', i:'🔥', t:'Actif — plus de 500'},
+    ],
+  },
+
+  pt: {
+    dir:'ltr', htmlLang:'pt',
+    splashBtn:'Começar',
+    feat1:'Cultura LinkedIn local', feat2:'Keywords locais', feat3:'Melhores horários de publicação',
+    s1lbl:'Passo Um',    s1q:'Qual é o seu nome?',                s1h:'Tudo será personalizado para você',         s1p:'محمد مأمون / Mohammed Mamoon',
+    s2lbl:'Passo Dois',  s2q:'País alvo?',                        s2h:'A IA analisará a cultura LinkedIn naquele país',
+    s3lbl:'Passo Três',  s3q:'Seu campo profissional?',           s3h:'Escolha o mais próximo da sua experiência',
+    s4lbl:'Passo Quatro',s4q:'Seu objetivo no LinkedIn?',         s4h:'Escolha um objetivo claro',
+    s5lbl:'Passo Cinco', s5q:'Seu nível atual no LinkedIn?',      s5h:'Seja honesto — o plano vai se adaptar',
+    s6lbl:'Último Passo',s6q:'Conte à IA sobre você',             s6h:'Mais info = plano mais preciso',
+    btnNext:'Próximo →', btnBuild:'Criar Meu Plano 🚀', btnBack:'←', stepOf:'/ 06',
+    cvZoneTxt:'Envie seu currículo<br><b>PDF, Word ou Texto</b>',
+    cvRemove:'Remover', cvDivider:'ou escreva manualmente',
+    manualPh:'Exemplo: Engenheiro elétrico, 10 anos de experiência, especialista em energia...',
+    genTitle:'Construindo seu plano',
+    gs1:'Analisando sua experiência', gs2:'Cultura LinkedIn no seu país', gs3:'Keywords locais', gs4:'Plano diário', gs5:'Gerando conteúdo',
+    tabToday:'Hoje', tabCulture:'País', tabPlan:'Plano', tabTips:'Dicas', tabProfile:'Perfil',
+    aiBadgeToday:'✦ Plano gerado por IA',
+    aiBadgeCulture:'✦ Análise LinkedIn local',
+    aiBadgePlan:'✦ Plano personalizado 4 semanas',
+    aiBadgeTips:'✦ Dicas para seu campo',
+    lvlLabel:'Nível atual',
+    lvlNames:['Iniciante 🌱','Ativo 📈','Profissional ⭐','Expert 🔥','Estrela 💎'],
+    xpSuffix:' XP · Complete tarefas para subir de nível',
+    streakLabel:'Atividade semanal',
+    streakDays:['Do','Se','Te','Qu','Qu','Se','Sá'],
+    tasksHead:'Tarefas de hoje',
+    taskCopyBtn:'📋 Ver e copiar texto',
+    completeBtnTxt:'✓ Completei as tarefas de hoje',
+    completedTxt:'✓ Excelente trabalho hoje!',
+    toastTask:'✓ Tarefa concluída +1 XP',
+    toastDay:'🎯 Dia salvo +3 XP',
+    cultureSubLbl:'Análise LinkedIn',
+    cultureCols:['Estilo de escrita','Melhores horários','Conteúdo preferido','Tom'],
+    analysisTitle:'Análise do mercado local',
+    keywordsTitle:'Keywords locais',
+    planWeekLbl:'Semana',
+    todayPrefix:'⭐ Hoje · ',
+    copyModalLbl:'Texto pronto para publicar',
+    copyBtn:'📋 Copiar', closeBtn:'✕ Fechar',
+    pDaysLbl:'Dias', pTasksLbl:'Tarefas', pLvlLbl:'Nível',
+    resetBtn:'Reiniciar app',
+    resetConfirm:'Tem certeza? Todos os dados serão apagados.',
+    chipLbl:'Cultura LinkedIn',
+    months:['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'],
+    days:['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'],
+    errMsg:'Erro de conexão — carregando plano alternativo...',
+    fields:[
+      {v:'sales',    i:'💼', t:'Vendas e Marketing'},
+      {v:'marketing',i:'📣', t:'Marketing Digital'},
+      {v:'engineer', i:'⚙️', t:'Engenharia e Tech'},
+      {v:'design',   i:'🎨', t:'Design e Criatividade'},
+      {v:'finance',  i:'📊', t:'Finanças e Negócios'},
+      {v:'hr',       i:'👥', t:'Recursos Humanos'},
+      {v:'other',    i:'⭐', t:'Outro campo'},
+    ],
+    goals:[
+      {v:'job',     i:'🎯', t:'Conseguir emprego'},
+      {v:'clients', i:'🤝', t:'Atrair clientes'},
+      {v:'brand',   i:'⭐', t:'Construir Personal Brand'},
+      {v:'network', i:'🌐', t:'Expandir minha rede'},
+    ],
+    levels:[
+      {v:'new',    i:'🌱', t:'Novo — menos de 100'},
+      {v:'mid',    i:'📈', t:'Intermediário — 100 a 500'},
+      {v:'active', i:'🔥', t:'Ativo — mais de 500'},
+    ],
+  },
+
+  ru: {
+    dir:'ltr', htmlLang:'ru',
+    splashBtn:'Начать',
+    feat1:'Культура LinkedIn', feat2:'Локальные ключевые слова', feat3:'Лучшее время публикаций',
+    s1lbl:'Шаг первый',   s1q:'Как вас зовут?',                  s1h:'Всё будет персонализировано для вас',       s1p:'محمد مأمون / Mohammed Mamoon',
+    s2lbl:'Шаг второй',   s2q:'Целевая страна?',                  s2h:'ИИ проанализирует культуру LinkedIn в этой стране',
+    s3lbl:'Шаг третий',   s3q:'Ваша профессиональная сфера?',     s3h:'Выберите ближайшее к вашему опыту',
+    s4lbl:'Шаг четвёртый',s4q:'Ваша цель в LinkedIn?',            s4h:'Выберите одну чёткую цель',
+    s5lbl:'Шаг пятый',    s5q:'Ваш текущий уровень в LinkedIn?',  s5h:'Будьте честны — план адаптируется',
+    s6lbl:'Последний шаг',s6q:'Расскажите ИИ о себе',             s6h:'Больше информации = точнее план',
+    btnNext:'Далее →', btnBuild:'Создать мой план 🚀', btnBack:'←', stepOf:'/ 06',
+    cvZoneTxt:'Загрузите резюме<br><b>PDF, Word или Текст</b>',
+    cvRemove:'Удалить', cvDivider:'или напишите вручную',
+    manualPh:'Пример: Инженер-электрик, 10 лет в Газпроме, специалист по энергетике...',
+    genTitle:'Создаём ваш план',
+    gs1:'Анализ вашего опыта', gs2:'Культура LinkedIn в вашей стране', gs3:'Локальные ключевые слова', gs4:'Ежедневный план', gs5:'Генерация контента',
+    tabToday:'Сегодня', tabCulture:'Страна', tabPlan:'План', tabTips:'Советы', tabProfile:'Профиль',
+    aiBadgeToday:'✦ ИИ-сгенерированный план',
+    aiBadgeCulture:'✦ Анализ LinkedIn',
+    aiBadgePlan:'✦ 4-недельный план',
+    aiBadgeTips:'✦ Советы для вашей сферы',
+    lvlLabel:'Текущий уровень',
+    lvlNames:['Новичок 🌱','Активный 📈','Профессионал ⭐','Эксперт 🔥','Звезда 💎'],
+    xpSuffix:' XP · Выполняйте задачи для повышения уровня',
+    streakLabel:'Недельная активность',
+    streakDays:['Вс','Пн','Вт','Ср','Чт','Пт','Сб'],
+    tasksHead:'Задачи на сегодня',
+    taskCopyBtn:'📋 Просмотр и копирование',
+    completeBtnTxt:'✓ Завершил задачи сегодня',
+    completedTxt:'✓ Отличная работа сегодня!',
+    toastTask:'✓ Задача выполнена +1 XP',
+    toastDay:'🎯 День сохранён +3 XP',
+    cultureSubLbl:'Анализ LinkedIn',
+    cultureCols:['Стиль письма','Лучшее время','Предпочтительный контент','Тон'],
+    analysisTitle:'Анализ местного рынка',
+    keywordsTitle:'Локальные ключевые слова',
+    planWeekLbl:'Неделя',
+    todayPrefix:'⭐ Сегодня · ',
+    copyModalLbl:'Готовый текст для публикации',
+    copyBtn:'📋 Скопировать', closeBtn:'✕ Закрыть',
+    pDaysLbl:'Дней', pTasksLbl:'Задач', pLvlLbl:'Уровень',
+    resetBtn:'Сбросить приложение',
+    resetConfirm:'Вы уверены? Все данные будут удалены.',
+    chipLbl:'Культура LinkedIn',
+    months:['Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг','Сен','Окт','Ноя','Дек'],
+    days:['Вс','Пн','Вт','Ср','Чт','Пт','Сб'],
+    errMsg:'Ошибка подключения — загружаем резервный план...',
+    fields:[
+      {v:'sales',    i:'💼', t:'Продажи и Маркетинг'},
+      {v:'marketing',i:'📣', t:'Цифровой маркетинг'},
+      {v:'engineer', i:'⚙️', t:'Инженерия и Tech'},
+      {v:'design',   i:'🎨', t:'Дизайн и Творчество'},
+      {v:'finance',  i:'📊', t:'Финансы и Бизнес'},
+      {v:'hr',       i:'👥', t:'Управление персоналом'},
+      {v:'other',    i:'⭐', t:'Другая сфера'},
+    ],
+    goals:[
+      {v:'job',     i:'🎯', t:'Найти работу'},
+      {v:'clients', i:'🤝', t:'Привлечь клиентов'},
+      {v:'brand',   i:'⭐', t:'Создать Personal Brand'},
+      {v:'network', i:'🌐', t:'Расширить сеть'},
+    ],
+    levels:[
+      {v:'new',    i:'🌱', t:'Новый — менее 100 контактов'},
+      {v:'mid',    i:'📈', t:'Средний — от 100 до 500'},
+      {v:'active', i:'🔥', t:'Активный — более 500'},
+    ],
+  },
+
+}; // end T
+
+
+// ── 2. COUNTRIES DATABASE ────────────────────────────────────
+// Each country has:
+//   flag, name{lang}, region{lang},
+//   culture{ style, timing, content, tone, chip{lang}, keywords[] }
+const COUNTRIES = [
+  {
+    v:'sa', flag:'🇸🇦',
+    name:   {ar:'السعودية',   en:'Saudi Arabia',   es:'Arabia Saudita',   fr:'Arabie Saoudite',   pt:'Arábia Saudita',   ru:'Саудовская Аравия'},
+    region: {ar:'الخليج',     en:'Gulf',            es:'Golfo Pérsico',    fr:'Golfe Persique',    pt:'Golfo Pérsico',    ru:'Персидский залив'},
+    culture:{
+      style:   {ar:'رسمي ومحترف مع لمسة شخصية', en:'Formal & professional with personal warmth', es:'Formal y profesional', fr:'Formel et professionnel', pt:'Formal e profissional', ru:'Формальный и профессиональный'},
+      timing:  {ar:'ثلاثاء–خميس: 8–10ص ، 7–9م', en:'Tue–Thu: 8–10 AM & 7–9 PM', es:'Mar–Jue: 8–10 AM y 7–9 PM', fr:'Mar–Jeu: 8h–10h & 19h–21h', pt:'Ter–Qui: 8–10h e 19–21h', ru:'Вт–Чт: 8–10 и 19–21'},
+      content: {ar:'إنجازات، إحصائيات، قصص نجاح خليجية', en:'Achievements, stats, Gulf success stories', es:'Logros, estadísticas, historias de éxito del Golfo', fr:'Réalisations, stats, success stories du Golfe', pt:'Conquistas, dados, histórias do Golfo', ru:'Достижения, статистика, истории успеха Залива'},
+      tone:    {ar:'احترافي رسمي، تجنب الفكاهة', en:'Formal professional, avoid humour', es:'Profesional formal, evitar el humor', fr:'Professionnel formel, éviter l\'humour', pt:'Profissional formal, evitar humor', ru:'Формальный профессионализм, без юмора'},
+      chip:    {ar:'اللغة الإنجليزية مطلوبة في العناوين. التواضع المهني يُقدَّر. تجنب النقد العلني للشركات. رؤية 2030 keyword ذهبية.',
+                en:'English headlines boost visibility. Professional humility valued. Avoid public company criticism. Vision 2030 is a golden keyword.',
+                es:'Los títulos en inglés aumentan visibilidad. Humildad profesional valorada. Evitar críticas públicas.',
+                fr:'Titres en anglais = meilleure visibilité. Humilité professionnelle appréciée. Éviter les critiques publiques.',
+                pt:'Títulos em inglês aumentam visibilidade. Humildade profissional valorizada.',
+                ru:'Заголовки на английском увеличивают видимость. Профессиональная скромность ценится.'},
+      keywords:['Saudi Arabia','Vision 2030','KSA','Riyadh','NEOM','Open to Work','Saudi Talent','Aramco','STC','SABIC'],
+    },
+  },
+  {
+    v:'ae', flag:'🇦🇪',
+    name:   {ar:'الإمارات',   en:'UAE',             es:'Emiratos Árabes',  fr:'Émirats Arabes',    pt:'Emirados Árabes',  ru:'ОАЭ'},
+    region: {ar:'الخليج',     en:'Gulf',            es:'Golfo Pérsico',    fr:'Golfe Persique',    pt:'Golfo Pérsico',    ru:'Персидский залив'},
+    culture:{
+      style:   {ar:'إنجليزي-عربي متعدد الثقافات وحيوي', en:'Multicultural English-Arabic, dynamic', es:'Multicultural, inglés-árabe dinámico', fr:'Multiculturel anglais-arabe, dynamique', pt:'Multicultural inglês-árabe, dinâmico', ru:'Мультикультурный английско-арабский, динамичный'},
+      timing:  {ar:'أحد–خميس: 9–11ص ، 6–8م', en:'Sun–Thu: 9–11 AM & 6–8 PM', es:'Dom–Jue: 9–11 AM y 6–8 PM', fr:'Dim–Jeu: 9h–11h & 18h–20h', pt:'Dom–Qui: 9–11h e 18–20h', ru:'Вс–Чт: 9–11 и 18–20'},
+      content: {ar:'ريادة أعمال، ابتكار، تكنولوجيا، Expo', en:'Entrepreneurship, innovation, tech, Expo legacy', es:'Emprendimiento, innovación, tecnología, Expo', fr:'Entrepreneuriat, innovation, tech, Expo', pt:'Empreendedorismo, inovação, tech, Expo', ru:'Предпринимательство, инновации, технологии'},
+      tone:    {ar:'حيوي ومتفتح، ثنائي اللغة', en:'Dynamic and open, bilingual welcome', es:'Dinámico y abierto, bilingüe', fr:'Dynamique et ouvert, bilingue bienvenu', pt:'Dinâmico e aberto, bilíngue', ru:'Динамичный и открытый, двуязычный'},
+      chip:    {ar:'المحتوى الإنجليزي يصل لجمهور أوسع. الريادة والابتكار تحصل على تفاعل أعلى. ادمج هاشتاقات إنجليزية وعربية.',
+                en:'English content reaches wider audience. Innovation posts get highest engagement. Mix English & Arabic hashtags.',
+                es:'El contenido en inglés llega a más audiencia. Las publicaciones de innovación tienen mayor engagement.',
+                fr:'Le contenu en anglais touche plus large. Les posts innovation ont le plus d\'engagement.',
+                pt:'Conteúdo em inglês alcança mais audiência. Posts de inovação têm maior engajamento.',
+                ru:'Контент на английском охватывает более широкую аудиторию.'},
+      keywords:['Dubai','Abu Dhabi','UAE','Expo City','Smart City','Fintech UAE','Innovation','Emiratisation','Golden Visa'],
+    },
+  },
+  {
+    v:'eg', flag:'🇪🇬',
+    name:   {ar:'مصر',         en:'Egypt',           es:'Egipto',           fr:'Égypte',            pt:'Egito',            ru:'Египет'},
+    region: {ar:'شمال أفريقيا',en:'N. Africa',       es:'Norte de África',  fr:'Afrique du Nord',   pt:'Norte de África',  ru:'Северная Африка'},
+    culture:{
+      style:   {ar:'عربي دافئ وتعليمي', en:'Warm Arabic, educational tone', es:'Árabe cálido, tono educativo', fr:'Arabe chaleureux, ton éducatif', pt:'Árabe quente, tom educativo', ru:'Тёплый арабский, образовательный тон'},
+      timing:  {ar:'ثلاثاء–خميس: 10ص–12ظ ، 9–11م', en:'Tue–Thu: 10 AM–12 PM & 9–11 PM', es:'Mar–Jue: 10 AM–12 PM y 9–11 PM', fr:'Mar–Jeu: 10h–12h & 21h–23h', pt:'Ter–Qui: 10h–12h e 21h–23h', ru:'Вт–Чт: 10–12 и 21–23'},
+      content: {ar:'تعليمي، تحفيزي، تبادل الخبرات', en:'Educational, motivational, experience-sharing', es:'Educativo, motivacional, compartir experiencias', fr:'Éducatif, motivationnel, partage d\'expériences', pt:'Educativo, motivacional, compartilhamento de experiências', ru:'Образовательный, мотивационный'},
+      tone:    {ar:'دافئ واجتماعي، عربي مصري', en:'Warm and communal, Egyptian Arabic warmth', es:'Cálido y comunal, calidez árabe egipcia', fr:'Chaleureux et communautaire', pt:'Quente e comunitário', ru:'Тёплый и общественный'},
+      chip:    {ar:'المحتوى التعليمي يحصل على أعلى تفاعل. اكتب بالعربية المصرية الفصيحة. أشبه قصص النجاح المحلية.',
+                en:'Educational content gets highest engagement. Write in clear Modern Arabic. Reference local Egyptian success stories.',
+                es:'El contenido educativo obtiene mayor engagement. Escribe en árabe claro. Referencia historias de éxito locales.',
+                fr:'Le contenu éducatif obtient le plus d\'engagement. Écrivez en arabe clair. Référencez les succès locaux.',
+                pt:'Conteúdo educativo obtém maior engajamento.',
+                ru:'Образовательный контент получает наибольшее вовлечение.'},
+      keywords:['Egypt','Cairo','مصر','Egyptian Market','Digital Egypt','CIB','Telecom Egypt','Egypt Vision 2030'],
+    },
+  },
+  {
+    v:'kw', flag:'🇰🇼',
+    name:   {ar:'الكويت',     en:'Kuwait',          es:'Kuwait',           fr:'Koweït',            pt:'Kuwait',           ru:'Кувейт'},
+    region: {ar:'الخليج',     en:'Gulf',            es:'Golfo Pérsico',    fr:'Golfe Persique',    pt:'Golfo Pérsico',    ru:'Персидский залив'},
+    culture:{
+      style:   {ar:'خليجي رسمي، مهني', en:'Formal Gulf professional', es:'Profesional formal del Golfo', fr:'Professionnel formel du Golfe', pt:'Profissional formal do Golfo', ru:'Формальный профессионализм Залива'},
+      timing:  {ar:'ثلاثاء–خميس: 8–10ص ، 7–9م', en:'Tue–Thu: 8–10 AM & 7–9 PM', es:'Mar–Jue: 8–10 AM y 7–9 PM', fr:'Mar–Jeu: 8h–10h & 19h–21h', pt:'Ter–Qui: 8–10h e 19–21h', ru:'Вт–Чт: 8–10 и 19–21'},
+      content: {ar:'قطاع النفط، المال، الحكومة، التطوير', en:'Oil sector, finance, government, development', es:'Sector petrolero, finanzas, gobierno', fr:'Secteur pétrolier, finance, gouvernement', pt:'Setor de petróleo, finanças, governo', ru:'Нефтяной сектор, финансы, госсектор'},
+      tone:    {ar:'رسمي ومحافظ، احترام التسلسل الهرمي', en:'Formal and conservative, respect hierarchy', es:'Formal y conservador, respetar la jerarquía', fr:'Formel et conservateur, respecter la hiérarchie', pt:'Formal e conservador, respeitar hierarquia', ru:'Формальный и консервативный'},
+      chip:    {ar:'المحتوى النفطي والمالي الأعلى تفاعلاً. التواضع المهني ضروري. اذكر شركات KPC وKFH.',
+                en:'Oil & finance content gets best engagement. Professional humility essential. Mention KPC, KFH.',
+                es:'Contenido de petróleo y finanzas tiene mejor engagement. Mencionar KPC, KFH.',
+                fr:'Le contenu pétrole & finance a le meilleur engagement. Mentionner KPC, KFH.',
+                pt:'Conteúdo de petróleo e finanças tem melhor engajamento.',
+                ru:'Нефтяной и финансовый контент получает лучший отклик.'},
+      keywords:['Kuwait','KW','Gulf','KPC','KFH','NBK','Oil Kuwait','Banking Kuwait','Kuwait Vision 2035'],
+    },
+  },
+  {
+    v:'us', flag:'🇺🇸',
+    name:   {ar:'أمريكا',     en:'USA',             es:'Estados Unidos',   fr:'États-Unis',        pt:'EUA',              ru:'США'},
+    region: {ar:'أمريكا الشمالية',en:'N. America',  es:'Norteamérica',     fr:'Amérique du Nord',  pt:'América do Norte', ru:'Северная Америка'},
+    culture:{
+      style:   {ar:'مباشر، data-driven، سرد قصصي', en:'Direct, data-driven storytelling', es:'Directo, basado en datos, storytelling', fr:'Direct, basé sur les données, storytelling', pt:'Direto, baseado em dados, storytelling', ru:'Прямой, основанный на данных, сторителлинг'},
+      timing:  {ar:'ثلاثاء–خميس: 8–10ص ، 12–1م', en:'Tue–Thu: 8–10 AM & 12–1 PM EST', es:'Mar–Jue: 8–10 AM y 12–1 PM EST', fr:'Mar–Jeu: 8h–10h & 12h–13h EST', pt:'Ter–Qui: 8–10h e 12–13h EST', ru:'Вт–Чт: 8–10 и 12–13 EST'},
+      content: {ar:'بيانات، قصص نجاح، قيادة فكرية، Thought Leadership', en:'Data insights, success stories, thought leadership', es:'Datos, historias de éxito, thought leadership', fr:'Données, success stories, thought leadership', pt:'Dados, histórias de sucesso, thought leadership', ru:'Данные, истории успеха, идейное лидерство'},
+      tone:    {ar:'مباشر وواثق، شخصي لكن محترف', en:'Direct and confident, personal yet professional', es:'Directo y seguro, personal pero profesional', fr:'Direct et confiant, personnel mais professionnel', pt:'Direto e confiante, pessoal mas profissional', ru:'Прямой и уверенный, личный но профессиональный'},
+      chip:    {ar:'الأرقام والنتائج تُقنع. Hook قوي في السطر الأول ضروري. الـ Story arc يحصل على أعلى engagement.',
+                en:'Numbers and results persuade. Strong hook in first line is critical. Story arc posts get highest engagement.',
+                es:'Los números y resultados convencen. Un hook fuerte en la primera línea es crítico.',
+                fr:'Les chiffres et résultats convainquent. Un hook fort en première ligne est critique.',
+                pt:'Números e resultados convencem. Um hook forte na primeira linha é crítico.',
+                ru:'Цифры и результаты убеждают. Сильный хук в первой строке критически важен.'},
+      keywords:['USA','United States','Remote Work','Hiring','Tech','Startup','Open to Work','Silicon Valley','LinkedIn USA','Y Combinator'],
+    },
+  },
+  {
+    v:'ca', flag:'🇨🇦',
+    name:   {ar:'كندا',       en:'Canada',          es:'Canadá',           fr:'Canada',            pt:'Canadá',           ru:'Канада'},
+    region: {ar:'أمريكا الشمالية',en:'N. America',  es:'Norteamérica',     fr:'Amérique du Nord',  pt:'América do Norte', ru:'Северная Америка'},
+    culture:{
+      style:   {ar:'ثنائي اللغة، شامل ومتنوع', en:'Bilingual, inclusive, diversity-first', es:'Bilingüe, inclusivo, diversidad primero', fr:'Bilingue, inclusif, diversité en premier', pt:'Bilíngue, inclusivo, diversidade primeiro', ru:'Двуязычный, инклюзивный'},
+      timing:  {ar:'ثلاثاء–خميس: 8–10ص ، 12–1م EST', en:'Tue–Thu: 8–10 AM & 12–1 PM EST', es:'Mar–Jue: 8–10 AM y 12–1 PM EST', fr:'Mar–Jeu: 8h–10h & 12h–13h EST', pt:'Ter–Qui: 8–10h e 12–13h EST', ru:'Вт–Чт: 8–10 и 12–13 EST'},
+      content: {ar:'تنوع، شمول، ابتكار، استدامة، قصص مهاجرين', en:'Diversity, inclusion, innovation, sustainability, newcomer stories', es:'Diversidad, inclusión, innovación, sostenibilidad', fr:'Diversité, inclusion, innovation, développement durable', pt:'Diversidade, inclusão, inovação, sustentabilidade', ru:'Разнообразие, включённость, инновации'},
+      tone:    {ar:'ودود ومتعاطف، تجنب المبالغة', en:'Friendly and empathetic, avoid hype', es:'Amigable y empático, evitar el hype', fr:'Amical et empathique, éviter le hype', pt:'Amigável e empático, evitar hype', ru:'Дружелюбный и эмпатичный'},
+      chip:    {ar:'قصص الوافدين الجدد تحصل على تفاعل عالٍ. اذكر اللغتين الإنجليزية والفرنسية. الشمول keyword أساسية.',
+                en:'Newcomer/immigrant stories get high engagement. Mention both English & French. Inclusion is a key term.',
+                es:'Las historias de recién llegados tienen alto engagement. Mencionar inglés y francés.',
+                fr:'Les histoires de nouveaux arrivants ont un fort engagement. Mentionner anglais et français.',
+                pt:'Histórias de recém-chegados têm alto engajamento.',
+                ru:'Истории новоприбывших получают высокое вовлечение.'},
+      keywords:['Canada','Toronto','Vancouver','PR Canada','Skilled Worker','LMIA','Canadian Experience','Newcomer Canada','Montreal'],
+    },
+  },
+  {
+    v:'gb', flag:'🇬🇧',
+    name:   {ar:'المملكة المتحدة',en:'United Kingdom',es:'Reino Unido',     fr:'Royaume-Uni',       pt:'Reino Unido',      ru:'Великобритания'},
+    region: {ar:'أوروبا',     en:'Europe',          es:'Europa',           fr:'Europe',            pt:'Europa',           ru:'Европа'},
+    culture:{
+      style:   {ar:'بريطاني محترف، ذكي وهادئ', en:'British professional, witty and understated', es:'Profesional británico, ingenioso y discreto', fr:'Professionnel britannique, spirituel et discret', pt:'Profissional britânico, espirituoso e discreto', ru:'Британский профессионализм, остроумный и сдержанный'},
+      timing:  {ar:'ثلاثاء–خميس: 7–9ص ، 12–2م GMT', en:'Tue–Thu: 7–9 AM & 12–2 PM GMT', es:'Mar–Jue: 7–9 AM y 12–2 PM GMT', fr:'Mar–Jeu: 7h–9h & 12h–14h GMT', pt:'Ter–Qui: 7–9h e 12–14h GMT', ru:'Вт–Чт: 7–9 и 12–14 GMT'},
+      content: {ar:'Thought Leadership، تحليل، قصص هادئة ومؤثرة', en:'Thought leadership, analysis, understated impactful stories', es:'Thought leadership, análisis, historias impactantes discretas', fr:'Thought leadership, analyse, histoires impactantes discrètes', pt:'Thought leadership, análise, histórias impactantes discretas', ru:'Идейное лидерство, аналитика, сдержанные но сильные истории'},
+      tone:    {ar:'ذكي ومحترف، لا مبالغة في الحماس', en:'Witty and professional, no overenthusiasm', es:'Ingenioso y profesional, sin entusiasmo excesivo', fr:'Spirituel et professionnel, sans excès d\'enthousiasme', pt:'Espirituoso e profissional, sem excesso de entusiasmo', ru:'Остроумный и профессиональный, без излишнего энтузиазма'},
+      chip:    {ar:'البريطانيون يكرهون المبالغة. الـ Understatement يُقدَّر. تجنب كثرة علامات التعجب.',
+                en:'British audiences dislike hype. Understatement is appreciated. Avoid excessive exclamation marks.',
+                es:'El público británico no le gusta el hype. Subestimar es apreciado. Evitar exclamaciones excesivas.',
+                fr:'Le public britannique n\'aime pas le hype. L\'understatement est apprécié.',
+                pt:'O público britânico não gosta de hype. Understatement é apreciado.',
+                ru:'Британская аудитория не любит преувеличений. Сдержанность ценится.'},
+      keywords:['UK','London','United Kingdom','Hiring UK','Tech UK','Financial Services','City of London','Graduate UK','NHS'],
+    },
+  },
+  {
+    v:'au', flag:'🇦🇺',
+    name:   {ar:'أستراليا',   en:'Australia',       es:'Australia',        fr:'Australie',         pt:'Austrália',        ru:'Австралия'},
+    region: {ar:'أوقيانوسيا', en:'Oceania',         es:'Oceanía',          fr:'Océanie',           pt:'Oceania',          ru:'Океания'},
+    culture:{
+      style:   {ar:'ودود وغير رسمي، أصيل وحقيقي', en:'Casual friendly, authentic and real', es:'Casual y amigable, auténtico y real', fr:'Décontracté et amical, authentique et vrai', pt:'Casual e amigável, autêntico e real', ru:'Непринуждённый и дружелюбный, аутентичный'},
+      timing:  {ar:'ثلاثاء–خميس: 7–9ص ، 12–1م AEST', en:'Tue–Thu: 7–9 AM & 12–1 PM AEST', es:'Mar–Jue: 7–9 AM y 12–1 PM AEST', fr:'Mar–Jeu: 7h–9h & 12h–13h AEST', pt:'Ter–Qui: 7–9h e 12–13h AEST', ru:'Вт–Чт: 7–9 и 12–13 AEST'},
+      content: {ar:'شخصي وأصيل، قصص حقيقية، تنوع', en:'Personal authentic stories, diversity, wellbeing', es:'Historias personales auténticas, diversidad, bienestar', fr:'Histoires personnelles authentiques, diversité, bien-être', pt:'Histórias pessoais autênticas, diversidade, bem-estar', ru:'Личные аутентичные истории, разнообразие, благополучие'},
+      tone:    {ar:'ودود ومريح، لا تكلف أو رسمية مفرطة', en:'Friendly and relaxed, no stuffiness', es:'Amigable y relajado, nada de rigidez', fr:'Amical et détendu, pas de formalisme excessif', pt:'Amigável e descontraído, sem formalidade excessiva', ru:'Дружелюбный и расслабленный'},
+      chip:    {ar:'الأستراليون يقدّرون الأصالة أكثر من الكمال. تجنب الرسمية المفرطة. قصص الفشل والتعلم منه = engagement عالٍ.',
+                en:'Australians value authenticity over perfection. Avoid excessive formality. Failure & learning stories get high engagement.',
+                es:'Los australianos valoran la autenticidad sobre la perfección. Evitar formalidad excesiva.',
+                fr:'Les Australiens valorisent l\'authenticité sur la perfection. Éviter la formalité excessive.',
+                pt:'Australianos valorizam autenticidade sobre perfeição.',
+                ru:'Австралийцы ценят аутентичность больше совершенства.'},
+      keywords:['Australia','Sydney','Melbourne','PR Australia','Skilled Migration','457 Visa','Australian Market','STEM Australia'],
+    },
+  },
+  {
+    v:'fr', flag:'🇫🇷',
+    name:   {ar:'فرنسا',      en:'France',          es:'Francia',          fr:'France',            pt:'França',           ru:'Франция'},
+    region: {ar:'أوروبا',     en:'Europe',          es:'Europa',           fr:'Europe',            pt:'Europa',           ru:'Европа'},
+    culture:{
+      style:   {ar:'فرنسي رسمي وفكري وأنيق', en:'Formal French intellectual elegance', es:'Elegancia intelectual francesa formal', fr:'Élégance intellectuelle française formelle', pt:'Elegância intelectual francesa formal', ru:'Формальная французская интеллектуальная элегантность'},
+      timing:  {ar:'ثلاثاء–خميس: 8–10ص ، 12–2م CET', en:'Tue–Thu: 8–10 AM & 12–2 PM CET', es:'Mar–Jue: 8–10 AM y 12–2 PM CET', fr:'Mar–Jeu: 8h–10h & 12h–14h CET', pt:'Ter–Qui: 8–10h e 12–14h CET', ru:'Вт–Чт: 8–10 и 12–14 CET'},
+      content: {ar:'تحليلي وفكري، رأي متخصص، ابتكار', en:'Analytical intellectual content, expert opinion, innovation', es:'Contenido analítico e intelectual, opinión experta', fr:'Contenu analytique et intellectuel, opinion d\'expert, innovation', pt:'Conteúdo analítico e intelectual, opinião especializada', ru:'Аналитический интеллектуальный контент, экспертное мнение'},
+      tone:    {ar:'رسمي وذكي، اكتب بالفرنسية في الغالب', en:'Formal and intelligent, write mostly in French', es:'Formal e inteligente, escribir principalmente en francés', fr:'Formel et intelligent, écrire principalement en français', pt:'Formal e inteligente, escrever principalmente em francês', ru:'Формальный и интеллектуальный, писать преимущественно по-французски'},
+      chip:    {ar:'الفرنسيون يفضلون المحتوى الفرنسي. الانتقاد البنّاء مقبول. الأناقة الفكرية في الكتابة مُقدَّرة.',
+                en:'French prefer French-language content. Constructive criticism is acceptable. Intellectual writing elegance is valued.',
+                es:'Los franceses prefieren contenido en francés. La crítica constructiva es aceptable.',
+                fr:'Les Français préfèrent le contenu en français. La critique constructive est acceptable. L\'élégance intellectuelle est valorisée.',
+                pt:'Franceses preferem conteúdo em francês. Crítica construtiva é aceitável.',
+                ru:'Французы предпочитают контент на французском. Конструктивная критика приемлема.'},
+      keywords:['France','Paris','Emploi France','Cadre Sup','French Tech','Innovation France','Grande École','CAC 40','Île-de-France'],
+    },
+  },
+  {
+    v:'es', flag:'🇪🇸',
+    name:   {ar:'إسبانيا',    en:'Spain',           es:'España',           fr:'Espagne',           pt:'Espanha',          ru:'Испания'},
+    region: {ar:'أوروبا',     en:'Europe',          es:'Europa',           fr:'Europe',            pt:'Europa',           ru:'Европа'},
+    culture:{
+      style:   {ar:'إسباني حيوي، قصصي وعلاقاتي', en:'Vibrant Spanish storytelling, relationship-focused', es:'Storytelling vibrante español, enfocado en relaciones', fr:'Storytelling espagnol vibrant, axé sur les relations', pt:'Storytelling espanhol vibrante, focado em relações', ru:'Яркий испанский сторителлинг, ориентированный на отношения'},
+      timing:  {ar:'ثلاثاء–خميس: 9–11ص ، 2–4م CET', en:'Tue–Thu: 9–11 AM & 2–4 PM CET', es:'Mar–Jue: 9–11 AM y 14–16h CET', fr:'Mar–Jeu: 9h–11h & 14h–16h CET', pt:'Ter–Qui: 9–11h e 14–16h CET', ru:'Вт–Чт: 9–11 и 14–16 CET'},
+      content: {ar:'قصص، علاقات، مجتمع، ابتكار اجتماعي', en:'Stories, relationships, community, social innovation', es:'Historias, relaciones, comunidad, innovación social', fr:'Histoires, relations, communauté, innovation sociale', pt:'Histórias, relações, comunidade, inovação social', ru:'Истории, отношения, сообщество, социальные инновации'},
+      tone:    {ar:'حيوي واجتماعي، دافئ وشخصي', en:'Vibrant and social, warm and personal', es:'Vibrante y social, cálido y personal', fr:'Vibrant et social, chaleureux et personnel', pt:'Vibrante e social, quente e pessoal', ru:'Яркий и социальный, тёплый и личный'},
+      chip:    {ar:'الإسبان يقدّرون العلاقات الشخصية. تجنب المحتوى الجاف. الفكاهة الخفيفة مرحّب بها.',
+                en:'Spanish value personal relationships. Avoid dry content. Light humour is welcome.',
+                es:'Los españoles valoran las relaciones personales. Evitar contenido seco. El humor ligero es bienvenido.',
+                fr:'Les Espagnols valorisent les relations personnelles. Éviter le contenu sec. L\'humour léger est bienvenu.',
+                pt:'Espanhóis valorizam relações pessoais. Evitar conteúdo seco. Humor leve é bem-vindo.',
+                ru:'Испанцы ценят личные отношения. Лёгкий юмор приветствуется.'},
+      keywords:['España','Madrid','Barcelona','Empleo España','Tech Spain','Startups Spain','BBVA','Telefónica','Santander'],
+    },
+  },
+  {
+    v:'br', flag:'🇧🇷',
+    name:   {ar:'البرازيل',   en:'Brazil',          es:'Brasil',           fr:'Brésil',            pt:'Brasil',           ru:'Бразилия'},
+    region: {ar:'أمريكا اللاتينية',en:'L. America', es:'Latinoamérica',    fr:'Amérique Latine',   pt:'América Latina',   ru:'Латинская Америка'},
+    culture:{
+      style:   {ar:'برازيلي دافئ وتحفيزي', en:'Warm Brazilian motivational', es:'Motivacional cálido brasileño', fr:'Chaud brésilien et motivationnel', pt:'Motivacional quente brasileiro', ru:'Тёплый бразильский мотивационный'},
+      timing:  {ar:'ثلاثاء–خميس: 8–10ص ، 12–2م BRT', en:'Tue–Thu: 8–10 AM & 12–2 PM BRT', es:'Mar–Jue: 8–10 AM y 12–2 PM BRT', fr:'Mar–Jeu: 8h–10h & 12h–14h BRT', pt:'Ter–Qui: 8–10h e 12–14h BRT', ru:'Вт–Чт: 8–10 и 12–14 BRT'},
+      content: {ar:'تحفيزي، قصص شخصية، Personal Brand، ريادة أعمال', en:'Motivational, personal stories, personal branding, entrepreneurship', es:'Motivacional, historias personales, personal branding, emprendimiento', fr:'Motivationnel, histoires personnelles, personal branding, entrepreneuriat', pt:'Motivacional, histórias pessoais, personal branding, empreendedorismo', ru:'Мотивационный, личные истории, личный брендинг, предпринимательство'},
+      tone:    {ar:'دافئ وإنساني، شخصي ومتحمس', en:'Warm and human, personal and enthusiastic', es:'Cálido y humano, personal y entusiasta', fr:'Chaleureux et humain, personnel et enthousiaste', pt:'Quente e humano, pessoal e entusiasmado', ru:'Тёплый и человечный, личный и полный энтузиазма'},
+      chip:    {ar:'البرازيليون من أكثر المستخدمين نشاطاً على LinkedIn. الإلهام الشخصي يحصل على أعلى تفاعل. اكتب بالبرتغالية.',
+                en:'Brazilians are among LinkedIn\'s most active users. Personal inspiration gets highest engagement. Write in Portuguese.',
+                es:'Los brasileños son de los usuarios más activos en LinkedIn. La inspiración personal obtiene mayor engagement.',
+                fr:'Les Brésiliens sont parmi les utilisateurs LinkedIn les plus actifs. L\'inspiration personnelle obtient le plus d\'engagement.',
+                pt:'Brasileiros estão entre os usuários mais ativos do LinkedIn. Inspiração pessoal obtém maior engajamento. Escreva em português.',
+                ru:'Бразильцы — одни из самых активных пользователей LinkedIn. Личное вдохновение получает наибольший отклик.'},
+      keywords:['Brasil','São Paulo','Rio de Janeiro','Vagas','LinkedIn Brasil','Tech Brazil','Inovação','Empreendedorismo','Startup Brasil'],
+    },
+  },
+  {
+    v:'ru', flag:'🇷🇺',
+    name:   {ar:'روسيا',      en:'Russia',          es:'Rusia',            fr:'Russie',            pt:'Rússia',           ru:'Россия'},
+    region: {ar:'أوروبا الشرقية',en:'E. Europe',    es:'Europa del Este',  fr:"Europe de l'Est",   pt:'Europa Oriental',  ru:'Восточная Европа'},
+    culture:{
+      style:   {ar:'روسي مهني وتقني، مباشر', en:'Professional Russian, technical, direct', es:'Ruso profesional, técnico, directo', fr:'Russe professionnel, technique, direct', pt:'Russo profissional, técnico, direto', ru:'Профессиональный русский, технический, прямой'},
+      timing:  {ar:'ثلاثاء–خميس: 9–11ص ، 2–4م MSK', en:'Tue–Thu: 9–11 AM & 2–4 PM MSK', es:'Mar–Jue: 9–11 AM y 14–16h MSK', fr:'Mar–Jeu: 9h–11h & 14h–16h MSK', pt:'Ter–Qui: 9–11h e 14–16h MSK', ru:'Вт–Чт: 9–11 и 14–16 МСК'},
+      content: {ar:'تقني ومهني، مسار وظيفي، مهارات تقنية', en:'Technical, professional, career path, tech skills', es:'Técnico, profesional, carrera, habilidades tecnológicas', fr:'Technique, professionnel, parcours de carrière, compétences tech', pt:'Técnico, profissional, carreira, habilidades tech', ru:'Технический, профессиональный, карьерный путь, технические навыки'},
+      tone:    {ar:'مهني ومباشر، قليل من الدفء الشخصي', en:'Professional and direct, less personal warmth', es:'Profesional y directo, menos calidez personal', fr:'Professionnel et direct, moins de chaleur personnelle', pt:'Profissional e direto, menos calor pessoal', ru:'Профессиональный и прямой, меньше личного тепла'},
+      chip:    {ar:'LinkedIn أقل انتشاراً في روسيا — تميّز سيُلاحَظ. المحتوى التقني والمهني الأفضل أداءً. استخدم الروسية والإنجليزية.',
+                en:'LinkedIn less widespread in Russia — standing out is easier. Technical & professional content performs best. Use both Russian & English.',
+                es:'LinkedIn menos extendido en Rusia — destacarse es más fácil. El contenido técnico rinde mejor.',
+                fr:'LinkedIn moins répandu en Russie — se démarquer est plus facile. Le contenu technique performe mieux.',
+                pt:'LinkedIn menos difundido na Rússia — se destacar é mais fácil. Conteúdo técnico performa melhor.',
+                ru:'LinkedIn менее распространён в России — выделиться легче. Технический контент работает лучше всего.'},
+      keywords:['Россия','Москва','ИТ специалист','Вакансии IT','LinkedIn Россия','Разработчик','Python','Data Science Russia','Яндекс','Сбербанк'],
+    },
+  },
+]; // end COUNTRIES
+
+
+// ── 3. HELPER: get country by value ──────────────────────────
+function getCountry(v){ return COUNTRIES.find(c => c.v === v); }
+
+// ── 4. STUB functions (replaced in Steps 3 & 4) ─────────────
+let LANG = 'ar';
+function L(){ return T[LANG]; }
+
+// ── API KEY ──────────────────────────────────────────────────
+function getApiKey(){
+  return localStorage.getItem('lic_apikey') || '';
+}
+function saveApiKey(key){
+  if(key) localStorage.setItem('lic_apikey', key.trim());
+}
+
+function setLang(lang, btn){
+  LANG = lang;
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('sel'));
+  if(btn) btn.classList.add('sel');
+  // Update splash text
+  const l = T[lang];
+  const btn_el = document.getElementById('splash-btn-txt');
+  if(btn_el) btn_el.textContent = l.splashBtn;
+  const f1 = document.getElementById('feat-1'); if(f1) f1.textContent = l.feat1;
+  const f2 = document.getElementById('feat-2'); if(f2) f2.textContent = l.feat2;
+  const f3 = document.getElementById('feat-3'); if(f3) f3.textContent = l.feat3;
+  // Set document direction
+  document.documentElement.lang = l.htmlLang;
+  document.documentElement.dir  = l.dir;
+}
+
+/* ============================================================
+   STEP 3 — App state · Onboarding · API call · Generating
+============================================================ */
+
+// ── APP STATE ────────────────────────────────────────────────
+let APP  = null;                          // loaded from localStorage on boot
+const TODAY = new Date().toISOString().split('T')[0];
+
+// Onboarding collected values
+const OB = { step:1, name:'', country:'', field:'', goal:'', level:'', cvText:'' };
+
+// ── UTILS ────────────────────────────────────────────────────
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function toast(msg){
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2300);
+}
+
+function save(){
+  localStorage.setItem('lic_global_v1', JSON.stringify({ APP, LANG }));
+}
+
+function openCopyModal(text){
+  document.getElementById('copy-lbl').textContent = L().copyModalLbl;
+  document.getElementById('copy-ta').value = text;
+  document.getElementById('copy-modal').classList.add('open');
+  setTimeout(() => {
+    const ta = document.getElementById('copy-ta');
+    ta.focus(); ta.select(); ta.setSelectionRange(0, 99999);
+  }, 180);
+}
+
+function copyText(){
+  const ta = document.getElementById('copy-ta');
+  ta.select(); ta.setSelectionRange(0, 99999);
+  try { document.execCommand('copy'); toast('✓ Copied'); } catch(e){}
+}
+
+function closeModal(){
+  document.getElementById('copy-modal').classList.remove('open');
+}
+
+// ── BOOT ─────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  // Restore saved API key to input if exists
+  const savedKey = getApiKey();
+  const inp = document.getElementById('api-key-inp');
+  if(savedKey && inp){
+    inp.value = savedKey;
+    document.getElementById('api-status').textContent = '✅';
+  }
+  try {
+    const raw = localStorage.getItem('lic_global_v1');
+    if(raw){
+      const d = JSON.parse(raw);
+      APP  = d.APP;
+      LANG = d.LANG || 'ar';
+      // Restore language button highlight
+      document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('sel'));
+      document.documentElement.lang = T[LANG].htmlLang;
+      document.documentElement.dir  = T[LANG].dir;
+      if(APP){ showScreen('dashboard'); initDash(); return; }
+    }
+  } catch(e){ localStorage.removeItem('lic_global_v1'); }
+  showScreen('splash');
+});
+
+// ── SPLASH → ONBOARDING ──────────────────────────────────────
+function startApp(){
+  const key = document.getElementById('api-key-inp')?.value.trim() || getApiKey();
+  if(!key){
+    document.getElementById('api-key-inp').style.borderColor = 'var(--red)';
+    document.getElementById('api-status').textContent = '❌';
+    setTimeout(() => {
+      document.getElementById('api-key-inp').style.borderColor = 'var(--border)';
+      document.getElementById('api-status').textContent = '🔒';
+    }, 2000);
+    return;
+  }
+  saveApiKey(key);
+  document.getElementById('api-status').textContent = '✅';
+  _startApp();
+}
+function _startApp(){
+  document.documentElement.dir  = L().dir;
+  document.documentElement.lang = L().htmlLang;
+  OB.step = 1; OB.name = ''; OB.country = ''; OB.field = ''; OB.goal = ''; OB.level = ''; OB.cvText = '';
+  initOnboarding();
+  showScreen('onboarding');
+  renderStep();
+}
+
+// ── ONBOARDING INIT ──────────────────────────────────────────
+function initOnboarding(){
+  const l = L();
+
+  // Labels for all 6 steps
+  const steps = [
+    { lbl:'s1-lbl', q:'s1-q', h:'s1-h' },
+    { lbl:'s2-lbl', q:'s2-q', h:'s2-h' },
+    { lbl:'s3-lbl', q:'s3-q', h:'s3-h' },
+    { lbl:'s4-lbl', q:'s4-q', h:'s4-h' },
+    { lbl:'s5-lbl', q:'s5-q', h:'s5-h' },
+    { lbl:'s6-lbl', q:'s6-q', h:'s6-h' },
+  ];
+  const keys = ['s1','s2','s3','s4','s5','s6'];
+  steps.forEach((s, i) => {
+    const k = keys[i];
+    document.getElementById(s.lbl).textContent = l[k+'lbl'];
+    document.getElementById(s.q  ).textContent = l[k+'q'  ];
+    document.getElementById(s.h  ).textContent = l[k+'h'  ];
+  });
+
+  // Name placeholder
+  document.getElementById('inp-name').placeholder = l.s1p;
+
+  // CV zone
+  document.getElementById('cv-zone-txt').innerHTML = l.cvZoneTxt;
+  document.getElementById('cv-remove-btn').textContent = l.cvRemove;
+  document.getElementById('ob-divider').textContent   = l.cvDivider;
+  document.getElementById('manual-ta').placeholder    = l.manualPh;
+  document.getElementById('chip-lbl').textContent     = l.chipLbl;
+
+  // Build country grid
+  buildCountryGrid();
+
+  // Build field / goal / level opts
+  buildOpts('field-opts', 'field', l.fields);
+  buildOpts('goal-opts',  'goal',  l.goals);
+  buildOpts('level-opts', 'level', l.levels);
+
+  // Buttons
+  document.getElementById('btn-next').textContent = l.btnNext;
+  document.getElementById('btn-back').textContent = l.btnBack;
+}
+
+function buildCountryGrid(){
+  const grid = document.getElementById('country-grid');
+  grid.innerHTML = '';
+  COUNTRIES.forEach(c => {
+    const div = document.createElement('div');
+    div.className = 'c-card';
+    div.innerHTML =
+      `<div class="c-flag">${c.flag}</div>` +
+      `<div class="c-info"><div class="c-name">${c.name[LANG]}</div><div class="c-region">${c.region[LANG]}</div></div>` +
+      `<div class="c-check"></div>`;
+    div.addEventListener('click', () => pickCountry(div, c.v));
+    grid.appendChild(div);
+  });
+}
+
+function buildOpts(wrapperId, key, items){
+  const wrap = document.getElementById(wrapperId);
+  wrap.innerHTML = '';
+  items.forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'ob-opt';
+    div.innerHTML =
+      `<span class="ob-opt-icon">${item.i}</span>` +
+      `<span class="ob-opt-text">${item.t}</span>` +
+      `<span class="ob-opt-check"></span>`;
+    div.addEventListener('click', () => pickOpt(div, key, item.v, wrapperId));
+    wrap.appendChild(div);
+  });
+}
+
+// ── ONBOARDING INTERACTIONS ──────────────────────────────────
+function pickCountry(el, val){
+  document.querySelectorAll('.c-card').forEach(c => c.classList.remove('sel'));
+  el.classList.add('sel');
+  OB.country = val;
+  // Show culture chip
+  const c = getCountry(val);
+  if(c){
+    document.getElementById('chip-body').textContent = c.culture.chip[LANG] || c.culture.chip['en'];
+    document.getElementById('culture-chip').classList.add('show');
+  }
+  validate();
+}
+
+function pickOpt(el, key, val, wrapperId){
+  document.querySelectorAll(`#${wrapperId} .ob-opt`).forEach(o => o.classList.remove('sel'));
+  el.classList.add('sel');
+  OB[key] = val;
+  validate();
+}
+
+function onName(){
+  OB.name = document.getElementById('inp-name').value.trim();
+  validate();
+}
+
+function validate(){
+  const ok = [
+    true,                  // step 0 placeholder
+    !!OB.name,             // s1
+    !!OB.country,          // s2
+    !!OB.field,            // s3
+    !!OB.goal,             // s4
+    !!OB.level,            // s5
+    true,                  // s6 (CV optional)
+  ];
+  const btn = document.getElementById('btn-next');
+  btn.disabled = !ok[OB.step];
+}
+
+function renderStep(){
+  const l  = L();
+  const n  = OB.step;
+
+  // Show correct step panel
+  document.querySelectorAll('.ob-step').forEach(s => s.classList.remove('active'));
+  document.getElementById('s' + n).classList.add('active');
+
+  // Progress
+  document.getElementById('ob-fill').style.width = ((n - 1) / 5 * 100) + '%';
+  document.getElementById('ob-count').textContent = '0' + n + ' ' + l.stepOf;
+
+  // Back button
+  document.getElementById('btn-back').style.display = n > 1 ? 'inline-flex' : 'none';
+
+  // Next / Build button label
+  document.getElementById('btn-next').textContent = n === 6 ? l.btnBuild : l.btnNext;
+
+  validate();
+}
+
+function nextStep(){
+  if(OB.step < 6){ OB.step++; renderStep(); }
+  else { generate(); }
+}
+
+function prevStep(){
+  if(OB.step > 1){ OB.step--; renderStep(); }
+}
+
+// ── CV UPLOAD ────────────────────────────────────────────────
+async function cvPick(input){
+  const file = input.files[0];
+  if(!file) return;
+  document.getElementById('cv-fname').textContent = file.name;
+  document.getElementById('cv-ok').classList.add('show');
+  document.getElementById('cv-zone').style.display = 'none';
+  try {
+    if(file.name.toLowerCase().endsWith('.pdf')){
+      const ab  = await file.arrayBuffer();
+      // PDF.js registers as window.pdfjsLib
+      const lib = window.pdfjsLib;
+      if(lib){
+        lib.GlobalWorkerOptions.workerSrc =
+          'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        const pdf = await lib.getDocument({ data: ab }).promise;
+        let txt = '';
+        for(let i = 1; i <= Math.min(pdf.numPages, 5); i++){
+          const pg = await pdf.getPage(i);
+          const ct = await pg.getTextContent();
+          txt += ct.items.map(x => x.str).join(' ') + '\n';
+        }
+        OB.cvText = txt.trim().substring(0, 4500);
+      } else {
+        // Fallback: extract printable ASCII from raw PDF bytes
+        const bytes = new Uint8Array(ab);
+        let raw = '';
+        for(let i = 0; i < bytes.length; i++){
+          const ch = bytes[i];
+          if(ch >= 32 && ch < 127) raw += String.fromCharCode(ch);
+          else if(ch === 10 || ch === 13) raw += ' ';
+        }
+        const words = raw.match(/[A-Za-z\u0600-\u06FF]{3,}/g) || [];
+        OB.cvText = words.join(' ').substring(0, 4500);
+      }
+    } else if(file.name.toLowerCase().match(/\.docx?$/)){
+      // .doc / .docx — use Mammoth.js to extract clean text
+      const ab2 = await file.arrayBuffer();
+      if(window.mammoth){
+        const result = await window.mammoth.extractRawText({ arrayBuffer: ab2 });
+        OB.cvText = (result.value || '').substring(0, 4500);
+      } else {
+        // Fallback if mammoth not loaded
+        OB.cvText = 'Word CV uploaded: ' + file.name;
+      }
+    } else {
+      // .txt and other text formats
+      await new Promise(res => {
+        const r = new FileReader();
+        r.onload  = e => { OB.cvText = (e.target.result || '').substring(0, 4500); res(); };
+        r.onerror = ()  => res();
+        r.readAsText(file, 'UTF-8');
+      });
+    }
+  } catch(e){
+    console.warn('CV read error:', e);
+    OB.cvText = 'CV uploaded: ' + file.name;
+  }
+}
+
+function cvClear(){
+  OB.cvText = '';
+  document.getElementById('cv-ok').classList.remove('show');
+  document.getElementById('cv-zone').style.display = 'block';
+  document.getElementById('cv-file').value = '';
+}
+
+function cvDrag(e){ e.preventDefault(); document.getElementById('cv-zone').classList.add('drag'); }
+
+function cvDrop(e){
+  e.preventDefault();
+  document.getElementById('cv-zone').classList.remove('drag');
+  const f = e.dataTransfer.files[0];
+  if(f){
+    const dt = new DataTransfer(); dt.items.add(f);
+    const inp = document.getElementById('cv-file');
+    inp.files = dt.files;
+    cvPick(inp);
+  }
+}
+
+// ── GENERATING SCREEN ─────────────────────────────────────────
+async function generate(){
+  // Collect manual text if no CV
+  const manual = document.getElementById('manual-ta').value.trim();
+  if(!OB.cvText && manual) OB.cvText = manual;
+  if(!OB.cvText) OB.cvText = `Field: ${OB.field} | Goal: ${OB.goal} | Level: ${OB.level}`;
+
+  // Set generating screen text
+  const l  = L();
+  const c  = getCountry(OB.country);
+  document.getElementById('gen-emoji' ).textContent = c ? c.flag : '🌍';
+  document.getElementById('gen-title' ).textContent = l.genTitle;
+  document.getElementById('gs1').textContent = l.gs1;
+  document.getElementById('gs2').textContent = l.gs2;
+  document.getElementById('gs3').textContent = l.gs3;
+  document.getElementById('gs4').textContent = l.gs4;
+  document.getElementById('gs5').textContent = l.gs5;
+
+  showScreen('generating');
+
+  // Animate steps
+  const gSteps = ['g1','g2','g3','g4','g5'];
+  let si = 0;
+  const iv = setInterval(() => {
+    if(si > 0) document.getElementById(gSteps[si-1]).className = 'gen-step done';
+    if(si < gSteps.length){
+      document.getElementById(gSteps[si]).className = 'gen-step active';
+      document.getElementById('gen-status').textContent =
+        [l.gs1,l.gs2,l.gs3,l.gs4,l.gs5][si];
+      si++;
+    }
+  }, 1500);
+
+  try {
+    const plan = await callClaude();
+    clearInterval(iv);
+    gSteps.forEach(id => document.getElementById(id).className = 'gen-step done');
+    APP = {
+      name: OB.name, country: OB.country, lang: LANG,
+      field: OB.field, goal: OB.goal, level: OB.level,
+      plan,
+      xp: 0, totalTasks: 0,
+      completedDays: [],
+      todayTasks: {}, todayDone: {},
+      createdAt: TODAY,
+    };
+    save();
+    setTimeout(() => { showScreen('dashboard'); initDash(); }, 700);
+  } catch(err){
+    clearInterval(iv);
+    console.error('API error:', err);
+    document.getElementById('gen-status').innerHTML =
+      `<span class="err-txt">${l.errMsg}</span>`;
+    setTimeout(() => {
+      APP = {
+        name: OB.name, country: OB.country, lang: LANG,
+        field: OB.field, goal: OB.goal, level: OB.level,
+        plan: buildFallback(),
+        xp: 0, totalTasks: 0,
+        completedDays: [],
+        todayTasks: {}, todayDone: {},
+        createdAt: TODAY,
+      };
+      save();
+      showScreen('dashboard'); initDash();
+    }, 3200);
+  }
+}
+
+// ── CLAUDE API CALL ───────────────────────────────────────────
+async function callClaude(){
+  const l        = L();
+  const c        = getCountry(OB.country);
+  const cName    = c ? c.name[LANG] : OB.country;
+  const cChip    = c ? (c.culture.chip[LANG] || c.culture.chip['en']) : '';
+  const cKws     = c ? c.culture.keywords.join(', ') : '';
+  const outLang  = { ar:'Arabic', en:'English', es:'Spanish', fr:'French', pt:'Portuguese', ru:'Russian' }[LANG];
+
+  const prompt = `You are a LinkedIn Growth expert specializing in local market cultures.
+Create a hyper-personalized LinkedIn growth plan in ${outLang}.
+
+USER PROFILE:
+- Name: ${OB.name}
+- Target Country: ${cName}
+- Field: ${OB.field}
+- Goal: ${OB.goal}
+- Current Level: ${OB.level}
+- Local LinkedIn Culture: ${cChip}
+- Local Keywords: ${cKws}
+- Background / CV: ${OB.cvText}
+
+CRITICAL RULES:
+1. Respond ENTIRELY in ${outLang} — every word, every task, every template
+2. All posts/content must be culturally adapted for ${cName}
+3. Use local keywords naturally inside post templates
+4. Match posting times to local timezone
+5. Output ONLY valid JSON — no markdown fences, no preamble
+
+JSON FORMAT (fill every field, no empty strings):
+{
+  "headline": "LinkedIn headline in English using real background, optimised for ${cName} market",
+  "profileInsight": "2-sentence personalised analysis in ${outLang} based on their background",
+  "countryAnalysis": {
+    "writingStyle": "...",
+    "bestTimes": "...",
+    "contentType": "...",
+    "tone": "...",
+    "topKeywords": ["kw1","kw2","kw3","kw4","kw5","kw6"],
+    "hrTip": "How HR in ${cName} searches LinkedIn — specific advice",
+    "cultureTip": "One unique cultural insight for ${cName} LinkedIn",
+    "avoidTip": "What to avoid on LinkedIn in ${cName}"
+  },
+  "weeklyPlan": [
+    {
+      "week": 1, "focus": "week theme in ${outLang}",
+      "days": [
+        {"day":1,"focus":"day focus","tasks":["task A","task B","task C"]},
+        {"day":2,"focus":"day focus","tasks":["task A","task B","task C"]},
+        {"day":3,"focus":"day focus","tasks":["task A","task B","task C"]},
+        {"day":4,"focus":"day focus","tasks":["task A","task B","task C"]},
+        {"day":5,"focus":"day focus","tasks":["task A","task B"]}
+      ]
+    },
+    {"week":2,"focus":"...","days":[{"day":1,"focus":"...","tasks":["...","...","..."]},{"day":2,"focus":"...","tasks":["...","...","..."]},{"day":3,"focus":"...","tasks":["...","...","..."]},{"day":4,"focus":"...","tasks":["...","...","..."]},{"day":5,"focus":"...","tasks":["...","..."]}]},
+    {"week":3,"focus":"...","days":[{"day":1,"focus":"...","tasks":["...","...","..."]},{"day":2,"focus":"...","tasks":["...","...","..."]},{"day":3,"focus":"...","tasks":["...","...","..."]},{"day":4,"focus":"...","tasks":["...","...","..."]},{"day":5,"focus":"...","tasks":["...","..."]}]},
+    {"week":4,"focus":"...","days":[{"day":1,"focus":"...","tasks":["...","...","..."]},{"day":2,"focus":"...","tasks":["...","...","..."]},{"day":3,"focus":"...","tasks":["...","...","..."]},{"day":4,"focus":"...","tasks":["...","...","..."]},{"day":5,"focus":"...","tasks":["...","..."]}]}
+  ],
+  "taskPool": [
+    {"type":"Post",    "emoji":"📝","title":"...","body":"...","tag":"...","template":"Full ready-to-post LinkedIn text in ${outLang} adapted for ${cName}, with hashtags, 150-250 words"},
+    {"type":"Post",    "emoji":"📝","title":"...","body":"...","tag":"...","template":"..."},
+    {"type":"Post",    "emoji":"📝","title":"...","body":"...","tag":"...","template":"..."},
+    {"type":"Post",    "emoji":"📝","title":"...","body":"...","tag":"...","template":"..."},
+    {"type":"Comment", "emoji":"💬","title":"...","body":"...","tag":"...","template":"Ready-to-use comment in ${outLang}, 30-60 words"},
+    {"type":"Comment", "emoji":"💬","title":"...","body":"...","tag":"...","template":"..."},
+    {"type":"Comment", "emoji":"💬","title":"...","body":"...","tag":"...","template":"..."},
+    {"type":"Connect", "emoji":"🤝","title":"...","body":"...","tag":"...","template":"Connection request message in ${outLang}, 40-70 words"},
+    {"type":"Connect", "emoji":"🤝","title":"...","body":"...","tag":"...","template":"..."},
+    {"type":"Connect", "emoji":"🤝","title":"...","body":"...","tag":"...","template":"..."},
+    {"type":"Optimize","emoji":"⚡","title":"...","body":"...","tag":"...","template":"Profile section text to copy in ${outLang}"},
+    {"type":"Optimize","emoji":"⚡","title":"...","body":"...","tag":"...","template":"..."}
+  ],
+  "insights": [
+    {"icon":"🎯","title":"...","body":"2-3 sentence tip in ${outLang}","tag":"..."},
+    {"icon":"📊","title":"...","body":"...","tag":"..."},
+    {"icon":"💬","title":"...","body":"...","tag":"..."},
+    {"icon":"🤝","title":"...","body":"...","tag":"..."},
+    {"icon":"⭐","title":"...","body":"...","tag":"..."},
+    {"icon":"🔥","title":"...","body":"...","tag":"..."}
+  ]
+}`;
+
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 4096,
+      messages: [{ role:'user', content: prompt }],
+    }),
+  });
+
+  if(!resp.ok){
+    const e = await resp.json().catch(() => ({}));
+    throw new Error(e.error?.message || 'HTTP ' + resp.status);
+  }
+
+  const data = await resp.json();
+  const raw  = (data.content || []).map(b => b.type === 'text' ? b.text : '').join('');
+  const clean = raw.replace(/```json/g,'').replace(/```/g,'').trim();
+
+  try { return JSON.parse(clean); }
+  catch(e){
+    const m = clean.match(/\{[\s\S]*\}/);
+    if(m) return JSON.parse(m[0]);
+    throw new Error('JSON parse failed');
+  }
+}
+
+// ── FALLBACK PLAN (offline / error) ──────────────────────────
+function buildFallback(){
+  const l = L();
+  const c = getCountry(OB.country) || COUNTRIES[0];
+  const cn = c.name[LANG];
+
+  const makeWeek = (wn, focus) => ({
+    week: wn, focus,
+    days: [1,2,3,4,5].map(d => ({
+      day: d,
+      focus: l.feat1,
+      tasks: [l.gs1, l.gs2, l.gs3].slice(0, d < 5 ? 3 : 2),
+    })),
+  });
+
+  return {
+    headline: `${OB.field} Professional | ${cn} Market | Open to Opportunities`,
+    profileInsight: `${OB.name}, your profile is ready to grow. Focus on daily activity and local content for the ${cn} market.`,
+    countryAnalysis: {
+      writingStyle:  c.culture.style[LANG]   || c.culture.style['en'],
+      bestTimes:     c.culture.timing[LANG]  || c.culture.timing['en'],
+      contentType:   c.culture.content[LANG] || c.culture.content['en'],
+      tone:          c.culture.tone[LANG]    || c.culture.tone['en'],
+      topKeywords:   c.culture.keywords,
+      hrTip:    `HR in ${cn} searches for skills + location. Include "${cn}" in your headline.`,
+      cultureTip:    c.culture.chip[LANG]    || c.culture.chip['en'],
+      avoidTip: `Avoid generic posts with no local context for the ${cn} market.`,
+    },
+    weeklyPlan: [1,2,3,4].map(n => makeWeek(n, `${l.planWeekLbl} ${n} — ${l.feat1}`)),
+    taskPool: [
+      { type:'Post',    emoji:'📝', title:l.feat1, body:l.feat2, tag:l.tabToday,
+        template:`🚀 ${l.feat1}\n\n${l.feat2}\n\n${c.culture.keywords.slice(0,4).map(k=>'#'+k.replace(/\s/g,'')).join(' ')}` },
+      { type:'Post',    emoji:'📝', title:l.feat2, body:l.feat3, tag:l.tabPlan,
+        template:`💡 ${l.feat2}\n\n${l.feat3}\n\n${c.culture.keywords.slice(2,5).map(k=>'#'+k.replace(/\s/g,'')).join(' ')}` },
+      { type:'Post',    emoji:'📝', title:l.feat3, body:l.feat1, tag:l.tabCulture,
+        template:`📊 ${l.feat3}\n\n${l.feat1}\n\n${c.culture.keywords.slice(0,3).map(k=>'#'+k.replace(/\s/g,'')).join(' ')}` },
+      { type:'Comment', emoji:'💬', title:l.gs2,   body:l.gs3,   tag:l.tabTips,
+        template:`${l.gs2} — ${l.gs3}` },
+      { type:'Connect', emoji:'🤝', title:l.gs1,   body:l.gs2,   tag:l.tabProfile,
+        template:`${l.gs1}\n${l.gs2}` },
+      { type:'Optimize',emoji:'⚡', title:l.gs4,   body:l.gs5,   tag:l.tabToday,
+        template:`${l.gs4}: ${l.gs5}` },
+    ],
+    insights: [
+      { icon:'🎯', title:l.feat1, body:c.culture.chip[LANG] || c.culture.chip['en'],         tag:l.tabCulture },
+      { icon:'📊', title:l.feat2, body:c.culture.timing[LANG] || c.culture.timing['en'],     tag:l.tabPlan    },
+      { icon:'💬', title:l.feat3, body:c.culture.content[LANG] || c.culture.content['en'],   tag:l.tabTips    },
+      { icon:'🤝', title:cn,      body:c.culture.style[LANG] || c.culture.style['en'],       tag:l.tabCulture },
+      { icon:'⭐', title:'Keywords', body: c.culture.keywords.join(' · '),                   tag:l.tabPlan    },
+      { icon:'🔥', title:l.gs3,   body:c.culture.tone[LANG] || c.culture.tone['en'],         tag:l.tabTips    },
+    ],
+  };
+}
+
+// ── GENERATING SCREEN LOGIC ───────────────────────────────────
+async function generate(){
+  const manual = document.getElementById('manual-ta').value.trim();
+  if(!OB.cvText && manual) OB.cvText = manual;
+  if(!OB.cvText) OB.cvText = `Field:${OB.field}, Goal:${OB.goal}, Level:${OB.level}`;
+
+  const c = getCountry(OB.country);
+  document.getElementById('gen-emoji').textContent = c ? c.flag : '🌍';
+
+  // Localize generating screen
+  const l = L();
+  document.getElementById('gen-title').textContent  = l.genTitle;
+  document.getElementById('gs1').textContent = l.gs1;
+  document.getElementById('gs2').textContent = l.gs2;
+  document.getElementById('gs3').textContent = l.gs3;
+  document.getElementById('gs4').textContent = l.gs4;
+  document.getElementById('gs5').textContent = l.gs5;
+
+  showScreen('generating');
+
+  // Animate steps
+  const gIds = ['g1','g2','g3','g4','g5'];
+  const gTxts = [l.gs1, l.gs2, l.gs3, l.gs4, l.gs5];
+  let si = 0;
+  const iv = setInterval(() => {
+    if(si > 0) document.getElementById(gIds[si-1]).className = 'gen-step done';
+    if(si < gIds.length){
+      document.getElementById(gIds[si]).className = 'gen-step active';
+      document.getElementById('gen-status').textContent = gTxts[si];
+      si++;
+    }
+  }, 1500);
+
+  try {
+    const plan = await callClaude();
+    clearInterval(iv);
+    gIds.forEach(id => document.getElementById(id).className = 'gen-step done');
+
+    APP = {
+      name: OB.name, country: OB.country, lang: LANG,
+      field: OB.field, goal: OB.goal, level: OB.level,
+      plan,
+      completedDays: [], totalTasks: 0, xp: 0,
+      todayTasks: {}, todayDone: {},
+      createdAt: TODAY
+    };
+    save();
+    setTimeout(() => { showScreen('dashboard'); initDash(); }, 500);
+
+  } catch(err) {
+    clearInterval(iv);
+    document.getElementById('gen-status').innerHTML =
+      `<span class="err-txt">${l.errMsg}</span>`;
+    setTimeout(() => {
+      APP = {
+        name: OB.name, country: OB.country, lang: LANG,
+        field: OB.field, goal: OB.goal, level: OB.level,
+        plan: buildFallback(),
+        completedDays: [], totalTasks: 0, xp: 0,
+        todayTasks: {}, todayDone: {},
+        createdAt: TODAY
+      };
+      save();
+      showScreen('dashboard');
+      initDash();
+    }, 3000);
+  }
+}
+
+// ── GEMINI API CALL ───────────────────────────────────────────
+async function callClaude(){
+  const c  = getCountry(OB.country);
+  const cn = c ? (c.name[LANG] || c.name['en']) : OB.country;
+  const cultureTxt = c ? (c.culture.chip[LANG] || c.culture.chip['en']) : '';
+  const kw = c ? c.culture.keywords.join(', ') : '';
+
+  const outLang = {
+    ar:'Arabic', en:'English', es:'Spanish',
+    fr:'French',  pt:'Portuguese', ru:'Russian'
+  }[LANG] || 'English';
+
+  const prompt = `You are a LinkedIn Growth Coach expert specializing in local market cultures worldwide.
+Create a hyper-personalized LinkedIn growth plan in ${outLang} for this person.
+
+PERSON:
+- Name: ${OB.name}
+- Target Country: ${cn}
+- Field: ${OB.field}
+- Goal: ${OB.goal}
+- Level: ${OB.level}
+- LinkedIn culture in ${cn}: ${cultureTxt}
+- Local keywords to use: ${kw}
+- Background: ${OB.cvText}
+
+RULES:
+1. Respond ENTIRELY in ${outLang}
+2. All posts/templates must be culturally adapted for ${cn}
+3. Use the local keywords naturally in posts
+4. Consider local work schedule and cultural norms
+5. Return ONLY valid JSON — no markdown, no backticks, no explanation
+
+JSON FORMAT:
+{
+  "headline": "LinkedIn headline in English (max 220 chars) optimised for ${cn} market",
+  "profileInsight": "2-sentence personalised insight in ${outLang} based on their background and ${cn} market",
+  "countryAnalysis": {
+    "writingStyle": "string",
+    "bestTimes": "string",
+    "contentType": "string",
+    "tone": "string",
+    "topKeywords": ["kw1","kw2","kw3","kw4","kw5"],
+    "hrTip": "How HR in ${cn} searches and what they look for",
+    "cultureTip": "One unique cultural insight for LinkedIn in ${cn}",
+    "avoidTip": "One thing to AVOID on LinkedIn in ${cn}"
+  },
+  "weeklyPlan": [
+    {
+      "week": 1,
+      "focus": "week theme",
+      "days": [
+        {"day":1,"focus":"daily focus","tasks":["task 1","task 2","task 3"]},
+        {"day":2,"focus":"daily focus","tasks":["task 1","task 2","task 3"]},
+        {"day":3,"focus":"daily focus","tasks":["task 1","task 2","task 3"]},
+        {"day":4,"focus":"daily focus","tasks":["task 1","task 2","task 3"]},
+        {"day":5,"focus":"daily focus","tasks":["task 1","task 2"]}
+      ]
+    },
+    {"week":2,"focus":"","days":[{"day":1,"focus":"","tasks":["","",""]},{"day":2,"focus":"","tasks":["","",""]},{"day":3,"focus":"","tasks":["","",""]},{"day":4,"focus":"","tasks":["","",""]},{"day":5,"focus":"","tasks":["",""]}]},
+    {"week":3,"focus":"","days":[{"day":1,"focus":"","tasks":["","",""]},{"day":2,"focus":"","tasks":["","",""]},{"day":3,"focus":"","tasks":["","",""]},{"day":4,"focus":"","tasks":["","",""]},{"day":5,"focus":"","tasks":["",""]}]},
+    {"week":4,"focus":"","days":[{"day":1,"focus":"","tasks":["","",""]},{"day":2,"focus":"","tasks":["","",""]},{"day":3,"focus":"","tasks":["","",""]},{"day":4,"focus":"","tasks":["","",""]},{"day":5,"focus":"","tasks":["",""]}]}
+  ],
+  "taskPool": [
+    {"type":"Post",    "emoji":"📝","title":"","body":"","tag":"","template":"Full ready-to-post text culturally adapted for ${cn} with 3-5 relevant hashtags"},
+    {"type":"Post",    "emoji":"📝","title":"","body":"","tag":"","template":""},
+    {"type":"Post",    "emoji":"📝","title":"","body":"","tag":"","template":""},
+    {"type":"Post",    "emoji":"📝","title":"","body":"","tag":"","template":""},
+    {"type":"Post",    "emoji":"📝","title":"","body":"","tag":"","template":""},
+    {"type":"Comment", "emoji":"💬","title":"","body":"","tag":"","template":""},
+    {"type":"Comment", "emoji":"💬","title":"","body":"","tag":"","template":""},
+    {"type":"Comment", "emoji":"💬","title":"","body":"","tag":"","template":""},
+    {"type":"Connect", "emoji":"🤝","title":"","body":"","tag":"","template":""},
+    {"type":"Connect", "emoji":"🤝","title":"","body":"","tag":"","template":""},
+    {"type":"Optimize","emoji":"⚡","title":"","body":"","tag":"","template":""},
+    {"type":"Optimize","emoji":"⚡","title":"","body":"","tag":"","template":""}
+  ],
+  "insights": [
+    {"icon":"🎯","title":"","body":"detailed actionable tip","tag":""},
+    {"icon":"📊","title":"","body":"","tag":""},
+    {"icon":"💬","title":"","body":"","tag":""},
+    {"icon":"🤝","title":"","body":"","tag":""},
+    {"icon":"⭐","title":"","body":"","tag":""},
+    {"icon":"🔥","title":"","body":"","tag":""}
+  ]
+}`;
+
+  const apiKey = getApiKey();
+  console.log('API Key prefix:', apiKey.substring(0,15)+'...');
+
+  const models = ['gemini-1.5-flash','gemini-1.5-pro','gemini-pro'];
+  let lastErr = null;
+
+  for(const model of models){
+    try{
+      const endpoint = 'https://generativelanguage.googleapis.com/v1beta/models/'+model+':generateContent?key='+apiKey;
+      console.log('Trying:', model);
+
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { temperature: 0.7, maxOutputTokens: 4096 }
+        })
+      });
+
+      const data = await res.json();
+      console.log('Status:', res.status, model);
+
+      if(!res.ok){
+        console.error('API Error:', JSON.stringify(data.error));
+        lastErr = new Error(data.error?.message || 'HTTP '+res.status);
+        continue;
+      }
+
+      const raw   = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      const clean = raw.replace(/```json/g,'').replace(/```/g,'').trim();
+      console.log('Response length:', raw.length);
+
+      try { return JSON.parse(clean); }
+      catch(_){
+        const m = clean.match(/\{[\s\S]*\}/);
+        if(m) return JSON.parse(m[0]);
+        throw new Error('JSON parse failed');
+      }
+    } catch(e){
+      console.error('Model failed:', model, e.message);
+      lastErr = e;
+    }
+  }
+  throw lastErr || new Error('All models failed');
+}
+
+// ── FALLBACK PLAN (offline / API error) ──────────────────────
+function buildFallback(){
+  const l  = L();
+  const c  = getCountry(OB.country) || COUNTRIES[0];
+  const cn = c.name[LANG] || c.name['en'];
+  const kw = c.culture.keywords;
+
+  const hashtags = kw.slice(0,4).map(k => '#' + k.replace(/\s+/g,'')).join(' ');
+
+  return {
+    headline: `${OB.field} Professional | ${c.name['en']} Market | Open to Opportunities`,
+    profileInsight: `Your background in ${OB.field} positions you well for the ${cn} market. Focus on daily LinkedIn activity and localized content to accelerate your growth.`,
+    countryAnalysis: {
+      writingStyle: c.culture.style[LANG]   || c.culture.style['en'],
+      bestTimes:    c.culture.timing[LANG]  || c.culture.timing['en'],
+      contentType:  c.culture.content[LANG] || c.culture.content['en'],
+      tone:         c.culture.tone[LANG]    || c.culture.tone['en'],
+      topKeywords:  kw.slice(0,5),
+      hrTip:   `HR in ${cn} searches for field-specific keywords combined with location tags.`,
+      cultureTip:  c.culture.chip[LANG] || c.culture.chip['en'],
+      avoidTip: `Avoid generic posts with no local context or connection to the ${cn} market.`,
+    },
+    weeklyPlan: [1,2,3,4].map(wk => ({
+      week: wk,
+      focus: [l.feat1, l.feat2, l.feat3, l.feat1][wk-1],
+      days: [1,2,3,4,5].map(d => ({
+        day: d,
+        focus: [l.gs1,l.gs2,l.gs3,l.gs4,l.gs5][d-1] || l.gs1,
+        tasks: d < 5
+          ? [l.gs1, l.gs2, l.gs3]
+          : [l.gs4, l.gs5]
+      }))
+    })),
+    taskPool: [
+      { type:'Post',    emoji:'📝', title:l.feat1, body:l.feat2, tag:l.tabToday,
+        template:`🚀 ${l.feat1}\n\n${l.feat2}\n\n${hashtags}` },
+      { type:'Post',    emoji:'📝', title:l.feat2, body:l.feat3, tag:l.tabPlan,
+        template:`💡 ${l.feat2}\n\n${l.feat3}\n\n${kw.slice(2,5).map(k=>'#'+k.replace(/\s/g,'')).join(' ')}` },
+      { type:'Post',    emoji:'📝', title:l.feat3, body:l.feat1, tag:l.tabCulture,
+        template:`📊 ${l.feat3}\n\n${l.feat1}\n\n${hashtags}` },
+      { type:'Comment', emoji:'💬', title:l.gs2,   body:l.gs3,   tag:l.tabTips,
+        template:`${l.gs2} — ${l.gs3}` },
+      { type:'Connect', emoji:'🤝', title:l.gs1,   body:l.gs2,   tag:l.tabProfile,
+        template:`${l.gs1}\n${l.gs2}` },
+      { type:'Optimize',emoji:'⚡', title:l.gs4,   body:l.gs5,   tag:l.tabToday,
+        template:`${l.gs4}: ${l.gs5}` },
+    ],
+    insights: [
+      { icon:'🎯', title:l.feat1, body:c.culture.chip[LANG]    || c.culture.chip['en'],    tag:l.tabCulture },
+      { icon:'📊', title:l.feat2, body:c.culture.timing[LANG]  || c.culture.timing['en'],  tag:l.tabPlan    },
+      { icon:'💬', title:l.feat3, body:c.culture.content[LANG] || c.culture.content['en'], tag:l.tabTips    },
+      { icon:'🤝', title:cn,      body:c.culture.style[LANG]   || c.culture.style['en'],   tag:l.tabCulture },
+      { icon:'⭐', title:'Keywords', body: kw.join(' · '),                                  tag:l.tabPlan    },
+      { icon:'🔥', title:l.gs3,   body:c.culture.tone[LANG]    || c.culture.tone['en'],    tag:l.tabTips    },
+    ],
+  };
+}
+
+/* ============================================================
+   STEP 4 — Dashboard: tabs, tasks, level, streak, plan,
+            culture analysis, insights, profile
+============================================================ */
+
+// ── INIT DASHBOARD ───────────────────────────────────────────
+function initDash(){
+  if(!APP){ showScreen('splash'); return; }
+  const l = L();
+  const c = getCountry(APP.country) || COUNTRIES[0];
+  const d = new Date();
+
+  // Document direction
+  document.documentElement.dir  = l.dir;
+  document.documentElement.lang = l.htmlLang;
+
+  // Header — date + country pill
+  document.getElementById('dash-date').textContent =
+    l.days[d.getDay()] + ' ' + d.getDate() + ' ' + l.months[d.getMonth()];
+  document.getElementById('dash-flag').textContent  = c.flag;
+  document.getElementById('dash-cname').textContent = c.name[LANG] || c.name['en'];
+
+  // Tab labels
+  document.getElementById('tab-btn-today'  ).textContent = l.tabToday;
+  document.getElementById('tab-btn-culture').textContent = l.tabCulture;
+  document.getElementById('tab-btn-plan'   ).textContent = l.tabPlan;
+  document.getElementById('tab-btn-tips'   ).textContent = l.tabTips;
+  document.getElementById('tab-btn-profile').textContent = l.tabProfile;
+
+  // Bottom nav labels
+  document.getElementById('bnav-today-lbl'  ).textContent = l.tabToday;
+  document.getElementById('bnav-culture-lbl').textContent = l.tabCulture;
+  document.getElementById('bnav-plan-lbl'   ).textContent = l.tabPlan;
+  document.getElementById('bnav-tips-lbl'   ).textContent = l.tabTips;
+  document.getElementById('bnav-profile-lbl').textContent = l.tabProfile;
+
+  // AI badges
+  document.getElementById('ai-badge-today'  ).textContent = l.aiBadgeToday;
+  document.getElementById('ai-badge-culture').textContent = l.aiBadgeCulture;
+  document.getElementById('ai-badge-plan'   ).textContent = l.aiBadgePlan;
+  document.getElementById('ai-badge-tips'   ).textContent = l.aiBadgeTips;
+
+  // Copy modal label
+  document.getElementById('copy-lbl').textContent = l.copyModalLbl;
+
+  // Culture tab header
+  document.getElementById('c-flag').textContent = c.flag;
+  document.getElementById('c-name').textContent = c.name[LANG] || c.name['en'];
+  document.getElementById('c-sub' ).textContent = l.cultureSubLbl;
+
+  // Render all sections
+  renderLevel();
+  renderStreak();
+  renderTasks();
+  renderCulture();
+  renderPlan();
+  renderTips();
+  renderProfile();
+
+  // Default tab
+  switchTab('today');
+}
+
+// ── TAB SWITCHING ─────────────────────────────────────────────
+function switchTab(name, tabEl, bnavId){
+  // Panes
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+
+  // Top tabs
+  document.querySelectorAll('.dash-tab').forEach(t => t.classList.remove('active'));
+  const tBtn = tabEl || document.getElementById('tab-btn-' + name);
+  if(tBtn) tBtn.classList.add('active');
+
+  // Bottom nav
+  document.querySelectorAll('.bnav-btn').forEach(b => b.classList.remove('active'));
+  const bBtn = bnavId
+    ? document.getElementById(bnavId)
+    : document.getElementById('bnav-' + name);
+  if(bBtn) bBtn.classList.add('active');
+}
+
+// ── LEVEL ────────────────────────────────────────────────────
+function renderLevel(){
+  const l   = L();
+  const xp  = APP.xp || 0;
+  const XPL = 10;                          // XP per level
+  const lvl = Math.min(Math.floor(xp / XPL) + 1, 5);
+  const pct = (xp % XPL) / XPL * 100;
+
+  document.getElementById('lvl-label').textContent = l.lvlLabel;
+  document.getElementById('lvl-num'  ).textContent = lvl;
+  document.getElementById('lvl-name' ).textContent = l.lvlNames[lvl - 1];
+  document.getElementById('lvl-bar'  ).style.width = pct + '%';
+  document.getElementById('lvl-xp'   ).textContent = xp + l.xpSuffix;
+}
+
+// ── STREAK GRID ───────────────────────────────────────────────
+function renderStreak(){
+  const l    = L();
+  const grid = document.getElementById('streak-grid');
+  grid.innerHTML = '';
+  document.getElementById('streak-label').textContent = l.streakLabel;
+
+  for(let i = 6; i >= 0; i--){
+    const d   = new Date();
+    d.setDate(d.getDate() - i);
+    const key = d.toISOString().split('T')[0];
+    const done = (APP.completedDays || []).includes(key);
+    const isToday = key === TODAY;
+
+    const cell = document.createElement('div');
+    cell.className = 's-cell' + (isToday ? ' today' : '') + (done ? ' done' : '');
+    cell.innerHTML =
+      `<div class="s-day">${l.streakDays[d.getDay()]}</div>` +
+      `<div class="s-dot"></div>`;
+    grid.appendChild(cell);
+  }
+}
+
+// ── TASKS ─────────────────────────────────────────────────────
+function getTodayPool(){
+  if(!APP.todayTasks[TODAY]){
+    const pool = [...(APP.plan.taskPool || [])].sort(() => Math.random() - .5);
+    APP.todayTasks[TODAY] = pool.slice(0, 4);
+    save();
+  }
+  return APP.todayTasks[TODAY];
+}
+
+function getTodayDone(){
+  if(!APP.todayDone[TODAY]) APP.todayDone[TODAY] = [];
+  return APP.todayDone[TODAY];
+}
+
+function renderTasks(){
+  const l     = L();
+  const tasks = getTodayPool();
+  const done  = getTodayDone();
+  const wrap  = document.getElementById('tasks-wrap');
+  wrap.innerHTML = '';
+
+  document.getElementById('tasks-head').textContent = l.tasksHead;
+  document.getElementById('tasks-ctr' ).textContent = done.length + '/' + tasks.length;
+
+  tasks.forEach((t, i) => {
+    const isDone = done.includes(i);
+    const card   = document.createElement('div');
+    card.className = 'task-card' + (isDone ? ' done' : '');
+    card.id = 'tc' + i;
+
+    card.innerHTML =
+      `<div class="task-head" id="th${i}">` +
+        `<div class="task-meta">` +
+          `<div class="task-type">` +
+            `<span class="task-type-icon">${t.emoji}</span>` +
+            `<span class="task-type-lbl">${t.type}</span>` +
+            `<span class="task-type-tag">· ${t.tag}</span>` +
+          `</div>` +
+          `<div class="task-title">${t.title}</div>` +
+          `<div class="task-desc">${t.body}</div>` +
+        `</div>` +
+        `<div class="task-check${isDone ? ' checked' : ''}" id="chk${i}">` +
+          `<svg width="12" height="12" viewBox="0 0 24 24">` +
+            `<path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>` +
+          `</svg>` +
+        `</div>` +
+      `</div>` +
+      `<div class="task-body">` +
+        `<div class="task-body-lbl">${l.copyModalLbl}</div>` +
+        `<div class="task-tpl">${t.template}</div>` +
+        `<button class="task-copy-btn" data-idx="${i}">${l.taskCopyBtn}</button>` +
+      `</div>`;
+
+    // Toggle expand
+    card.querySelector('#th' + i).addEventListener('click', e => {
+      if(e.target.closest('#chk' + i)) return;
+      card.classList.toggle('open');
+    });
+
+    // Checkbox
+    card.querySelector('#chk' + i).addEventListener('click', e => {
+      e.stopPropagation();
+      const d2 = getTodayDone();
+      if(d2.includes(i)){
+        APP.todayDone[TODAY] = d2.filter(x => x !== i);
+        APP.xp          = Math.max(0, (APP.xp || 0) - 1);
+        APP.totalTasks  = Math.max(0, (APP.totalTasks || 0) - 1);
+      } else {
+        APP.todayDone[TODAY] = [...d2, i];
+        APP.xp         = (APP.xp || 0) + 1;
+        APP.totalTasks = (APP.totalTasks || 0) + 1;
+        toast(l.toastTask);
+      }
+      save();
+      renderTasks();
+      renderLevel();
+      renderProfile();
+    });
+
+    // Copy button
+    card.querySelector('.task-copy-btn').addEventListener('click', e => {
+      e.stopPropagation();
+      openCopyModal(t.template);
+    });
+
+    wrap.appendChild(card);
+  });
+
+  // Complete day button
+  const already = (APP.completedDays || []).includes(TODAY);
+  const btn = document.getElementById('complete-btn');
+  btn.disabled    = already;
+  btn.textContent = already
+    ? l.completedTxt
+    : l.completeBtnTxt + ' (' + getTodayDone().length + '/' + tasks.length + ')';
+}
+
+function completeDay(){
+  if((APP.completedDays || []).includes(TODAY)) return;
+  APP.completedDays.push(TODAY);
+  APP.xp = (APP.xp || 0) + 3;
+  save();
+  renderStreak();
+  renderLevel();
+  renderTasks();
+  renderProfile();
+  toast(L().toastDay);
+}
+
+// ── CULTURE TAB ───────────────────────────────────────────────
+function renderCulture(){
+  const l   = L();
+  const c   = getCountry(APP.country) || COUNTRIES[0];
+  const ca  = APP.plan.countryAnalysis || {};
+
+  // 4-grid culture items
+  const grid = document.getElementById('culture-grid');
+  grid.innerHTML = '';
+  const cols = l.cultureCols;
+  const vals = [
+    ca.writingStyle || c.culture.style[LANG]   || c.culture.style['en'],
+    ca.bestTimes    || c.culture.timing[LANG]  || c.culture.timing['en'],
+    ca.contentType  || c.culture.content[LANG] || c.culture.content['en'],
+    ca.tone         || c.culture.tone[LANG]    || c.culture.tone['en'],
+  ];
+  cols.forEach((col, i) => {
+    const div = document.createElement('div');
+    div.className = 'c-item';
+    div.innerHTML = `<div class="c-item-lbl">${col}</div><div class="c-item-val">${vals[i]}</div>`;
+    grid.appendChild(div);
+  });
+
+  // Analysis cards
+  const wrap = document.getElementById('analysis-wrap');
+  wrap.innerHTML = '';
+
+  // HR + culture + avoid card
+  if(ca.hrTip || ca.cultureTip || ca.avoidTip){
+    const card = document.createElement('div');
+    card.className = 'analysis-card';
+    card.innerHTML =
+      `<div class="analysis-hd">` +
+        `<span class="analysis-icon">🔍</span>` +
+        `<div>` +
+          `<div class="analysis-title">${l.analysisTitle}</div>` +
+          `<div class="analysis-sub">${c.name[LANG] || c.name['en']}</div>` +
+        `</div>` +
+      `</div>` +
+      `<div class="analysis-list">` +
+        (ca.hrTip    ? `<div class="analysis-item"><span class="analysis-bullet">→</span><span>${ca.hrTip}</span></div>` : '') +
+        (ca.cultureTip ? `<div class="analysis-item"><span class="analysis-bullet">💡</span><span>${ca.cultureTip}</span></div>` : '') +
+        (ca.avoidTip ? `<div class="analysis-item"><span class="analysis-bullet">⚠️</span><span>${ca.avoidTip}</span></div>` : '') +
+      `</div>`;
+    wrap.appendChild(card);
+  }
+
+  // Keywords card
+  const kws = ca.topKeywords || c.culture.keywords || [];
+  if(kws.length){
+    const card = document.createElement('div');
+    card.className = 'analysis-card';
+    card.innerHTML =
+      `<div class="analysis-hd">` +
+        `<span class="analysis-icon">🔑</span>` +
+        `<div>` +
+          `<div class="analysis-title">${l.keywordsTitle}</div>` +
+          `<div class="analysis-sub">${c.name[LANG] || c.name['en']}</div>` +
+        `</div>` +
+      `</div>` +
+      `<div class="keywords-row">` +
+        kws.map(k => `<span class="kw">${k}</span>`).join('') +
+      `</div>`;
+    wrap.appendChild(card);
+  }
+}
+
+// ── PLAN TAB ──────────────────────────────────────────────────
+function renderPlan(){
+  const l    = L();
+  const wrap = document.getElementById('plan-wrap');
+  wrap.innerHTML = '';
+
+  const plan = APP.plan.weeklyPlan || [];
+  const daysSinceStart = Math.floor(
+    (new Date(TODAY) - new Date(APP.createdAt)) / 86400000
+  );
+
+  plan.forEach(wk => {
+    const sec = document.createElement('div');
+    sec.className = 'plan-week';
+    sec.innerHTML =
+      `<div class="plan-week-hd">` +
+        `<div class="plan-wnum">0${wk.week}</div>` +
+        `<div class="plan-winfo">` +
+          `<div class="plan-wlabel">${l.planWeekLbl} ${wk.week}</div>` +
+          `<div class="plan-wfocus">${wk.focus}</div>` +
+        `</div>` +
+      `</div>`;
+
+    (wk.days || []).forEach(dy => {
+      const globalDay = (wk.week - 1) * 5 + dy.day - 1;
+      const isToday   = globalDay === daysSinceStart;
+
+      const row = document.createElement('div');
+      row.className = 'plan-day' + (isToday ? ' today' : '');
+      row.innerHTML =
+        `<div class="plan-dnum">${dy.day}</div>` +
+        `<div class="plan-dcontent">` +
+          `<div class="plan-dfocus">${isToday ? l.todayPrefix : ''}${dy.focus}</div>` +
+          `<div class="plan-dtasks">${(dy.tasks || []).map(t => '• ' + t).join('\n')}</div>` +
+        `</div>`;
+      sec.appendChild(row);
+    });
+
+    wrap.appendChild(sec);
+  });
+}
+
+// ── TIPS TAB ──────────────────────────────────────────────────
+function renderTips(){
+  const wrap = document.getElementById('tips-wrap');
+  wrap.innerHTML = '';
+
+  (APP.plan.insights || []).forEach(ins => {
+    const card = document.createElement('div');
+    card.className = 'insight-card';
+    card.innerHTML =
+      `<div class="ins-icon">${ins.icon}</div>` +
+      `<div class="ins-title">${ins.title}</div>` +
+      `<div class="ins-body">${ins.body}</div>` +
+      `<span class="ins-tag">${ins.tag}</span>`;
+    wrap.appendChild(card);
+  });
+}
+
+// ── PROFILE TAB ───────────────────────────────────────────────
+function renderProfile(){
+  const l   = L();
+  const lvl = Math.min(Math.floor((APP.xp || 0) / 10) + 1, 5);
+
+  document.getElementById('p-name'     ).textContent = APP.name || '—';
+  document.getElementById('p-headline' ).textContent = APP.plan?.headline || '—';
+  document.getElementById('p-insight'  ).textContent = APP.plan?.profileInsight || '';
+  document.getElementById('p-days'     ).textContent = (APP.completedDays || []).length;
+  document.getElementById('p-tasks'    ).textContent = APP.totalTasks || 0;
+  document.getElementById('p-lvl'      ).textContent = lvl;
+  document.getElementById('p-days-lbl' ).textContent = l.pDaysLbl;
+  document.getElementById('p-tasks-lbl').textContent = l.pTasksLbl;
+  document.getElementById('p-lvl-lbl'  ).textContent = l.pLvlLbl;
+  document.getElementById('btn-reset'  ).textContent = l.resetBtn;
+}
+
+// ── RESET ─────────────────────────────────────────────────────
+function resetApp(){
+  if(!confirm(L().resetConfirm)) return;
+  localStorage.removeItem('lic_global_v1');
+  APP  = null;
+  LANG = 'ar';
+  document.documentElement.dir  = 'rtl';
+  document.documentElement.lang = 'ar';
+  document.querySelectorAll('.lang-btn').forEach((b,i) => {
+    b.classList.toggle('sel', i === 0);
+  });
+  document.getElementById('splash-btn-txt').textContent = T.ar.splashBtn;
+  document.getElementById('feat-1').textContent = T.ar.feat1;
+  document.getElementById('feat-2').textContent = T.ar.feat2;
+  document.getElementById('feat-3').textContent = T.ar.feat3;
+  showScreen('splash');
+}
+</script>
+
+</body>
+</html>
